@@ -14,8 +14,12 @@ SYSCALL srpolicy(int policy)
 {
   /* sanity check ! */
 
-  kprintf("To be implemented!\n");
-
+  if (policy == SC || policy == AGING) {
+	  page_replace_policy = policy;
+  }
+  else {
+	  return SYSERR;
+  }
   return OK;
 }
 

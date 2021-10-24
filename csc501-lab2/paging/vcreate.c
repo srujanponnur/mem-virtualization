@@ -28,9 +28,36 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 	long	args;			/* arguments (treated like an	*/
 					/* array in the code)		*/
 {
-	kprintf("To be implemented!\n");
-	return OK;
+	STATWORD ps;
+	disable(ps);
+	int store;
+	if ((hsize < 1 || hsize > 256) || get_bsm(&store) == SYSERR) {
+		restore(ps);
+		return SYSERR;
+	}
+	else {
+		int pid = create(procaddr, ssize, priority, name, nargs, args);
+		if (pid == SYSERR) {
+			restore(ps);
+			return SYSERR;
+		}
+		int ret = bsm_map(pid, 4096, store, hsize);
+		if (ret == SYSERR) {
+			restore(ps);
+			return SYSERR;
+		}
+		proctab[pid].store = store;
+		proctab[pid].vhpno = 4096;                  
+		proctab[pid].vhpnpages = hsize;
+		struct mblock *bs_mem = BACKING_STORE_BASE + store * BACKING_STORE_UNIT_SIZE;
+		bs_mem->mlen = NBPG * hsize;
+		bs_mem->mnext = NULL;
+		proctab[pid].vmemlist->mnext = 4096 * NBPG;
+		restore(ps);
+		return pid;
+	};
 }
+
 
 /*------------------------------------------------------------------------
  * newpid  --  obtain a new (free) process id

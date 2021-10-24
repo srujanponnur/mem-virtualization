@@ -36,13 +36,13 @@ typedef struct {
   unsigned int pt_base	: 20;		/* location of page?		*/
 } pt_t;
 
-typedef struct{
+typedef struct {
   unsigned int pg_offset : 12;		/* page offset			*/
   unsigned int pt_offset : 10;		/* page table offset		*/
   unsigned int pd_offset : 10;		/* page directory offset	*/
 } virt_addr_t;
 
-typedef struct{
+typedef struct {
   int bs_status;			/* MAPPED or UNMAPPED		*/
   int bs_pid;				/* process id using this slot   */
   int bs_vpno;				/* starting virtual page number */
@@ -57,7 +57,7 @@ typedef struct{
   int fr_refcnt;			/* reference count		*/
   int fr_type;				/* FR_DIR, FR_TBL, FR_PAGE	*/
   int fr_dirty;
-}fr_map_t;
+} fr_map_t;
 
 extern bs_map_t bsm_tab[];
 extern fr_map_t frm_tab[];
@@ -89,5 +89,9 @@ SYSCALL write_bs(char *, bsd_t, int);
 #define SC 3
 #define AGING 4
 
+
+#define GLOBALPAGES 4
 #define BACKING_STORE_BASE	0x00800000
 #define BACKING_STORE_UNIT_SIZE 0x00100000
+
+extern void init_pd(int);

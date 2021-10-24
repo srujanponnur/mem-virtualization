@@ -29,6 +29,8 @@ struct	pentry	proctab[NPROC]; /* process table			*/
 int	nextproc;		/* next process slot to use in create	*/
 struct	sentry	semaph[NSEM];	/* semaphore table			*/
 int	nextsem;		/* next sempahore slot to use in screate*/
+bs_map_t bsm_tab[8]   /* The eight mapping entries for backing store*/
+fr_map_t frm_tab[NFRAMES];
 struct	qent	q[NQENT];	/* q table (see queue.c)		*/
 int	nextqueue;		/* next slot in q structure to use	*/
 char	*maxaddr;		/* max memory address (set by sizmem)	*/
@@ -209,8 +211,75 @@ sysinit()
 	}
 
 	rdytail = 1 + (rdyhead=newqueue());/* initialize ready list */
+	
+	init_frm();
+	init_bsm();
+	int frameIndex = 0;
+	pt_t *pte;
+	pd_t *pde;
+	int free_frames[4];
+	while (frameIndex < GLOBALPAGES) {
+		pte = (FRAME0 + frameIndex) * NBPG;
+		int pageIndex = 0;
+		get_frm(&free_frames[frameIndex]); /* Since its initialization, free frames will always be from 0 to 3 */
+		//kprint("Frame value is %d", free_frame_no);
+		pte = (free_frames[frameIndex] + FRAME0) * NBPG;
+		while(pageIndex < 1024) {
+			pte->pt_pres = 1;
+			pte->pt_write = 1;
+			pte->pt_user = 0;
+			pte->pt_pwt = 0;
+			pte->pt_pcd = 0;
+			pte->pt_acc = 0;
+			pte->pt_dirty = 0;
+			pte->pt_mbz = 0;
+			pte->pt_global = 1;
+			pte->pt_avail = 0;
+			pte->pt_base = (free_frames[frameIndex] + 1) * FRAME0 + pageIndex;
+			pte++;
+			pageIndex++
+		}
+		frm_tab[free_frame_no].fr_status = FRM_MAPPED;
+		frm_tab[free_frame_no].fr_pid = NULLPROC;
+		frm_tab[free_frame_no].fr_type = FR_TBL;
+		frm_tab[free_frame_no].fr_dirty = 0;
+		frm_tab[free_frame_no].fr_vpno = 0;
+		frm_tab[free_frame_no].fr_refcnt = 0;
+		frameIndex++;
+	}
 
+	get_frm(&free_frame_no); /* Getting next free frame for NULL Proc's Page Directory */
+	pde = (FRAME0 + free_frame_no) * NBPG;
+	proctab[NULLPROC].pdbr = pde;
+	frm_tab[free_frame_no].fr_type = FR_DIR;
+	frm_tab[free_frame_no].fr_pid = NULLPROC;
+	frm_tab[free_frame_no].fr_status = FRM_MAPPED;
+	frm_tab[free_frame_no].fr_dirty = 0;
+	frm_tab[free_frame_no].fr_vpno = 0;
+	frm_tab[free_frame_no].fr_refcnt = 0;
+	int dirIndex;
+	for (dirIndex = 0; dirIndex < 1024; dirIndex++) {
+		pde->pd_pres = 0;
+		pde->pd_write = 1; // set this always to one
+		pde->pd_user = 0;
+		pde->pd_pwt = 0;
+		pde->pd_pcd = 0;
+		pde->pd_acc = 0;
+		pde->pd_mbz = 0;
+		pde->pd_fmb = 0;
+		pde->pd_global = 0;
+		pde->pd_avail = 0;
+		pde->pd_base = 0;
 
+		if (dirIndex >= 0 && dirIndex < 4) {
+			pde->pd_pres = 1; // only when being used
+			pde->pd_base = FRAME0 + dirIndex;
+		}
+		pde++;
+	}
+	write_cr3(proctab[NULLPROC].pdbr);
+	set_evec(14, pfintr)
+	enable_paging();
 	return(OK);
 }
 
