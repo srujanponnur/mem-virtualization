@@ -214,17 +214,16 @@ sysinit()
 	
 	init_frm();
 	init_bsm();
-	int frameIndex = 0;
+	int frame_index = 0, free_frame_index;
 	pt_t *pte;
 	pd_t *pde;
-	int free_frames[4];
-	while (frameIndex < GLOBALPAGES) {
-		pte = (FRAME0 + frameIndex) * NBPG;
-		int pageIndex = 0;
-		get_frm(&free_frames[frameIndex]); /* Since its initialization, free frames will always be from 0 to 3 */
+	while (frame_index < GLOBALPAGES) {
+		
+		int page_index = 0;
+		get_frm(&free_frame_index); /* Since its initialization, free frames will always be from 0 to 3 */
 		//kprint("Frame value is %d", free_frame_no);
-		pte = (free_frames[frameIndex] + FRAME0) * NBPG;
-		while(pageIndex < 1024) {
+		pte = (pt_t *)((FRAME0 + frame_index) * NBPG);
+		while(page_index < 1024) {
 			pte->pt_pres = 1;
 			pte->pt_write = 1;
 			pte->pt_user = 0;
@@ -235,9 +234,9 @@ sysinit()
 			pte->pt_mbz = 0;
 			pte->pt_global = 1;
 			pte->pt_avail = 0;
-			pte->pt_base = (free_frames[frameIndex] + 1) * FRAME0 + pageIndex;
+			pte->pt_base = (free_frames[frame_index] + 1) * FRAME0 + page_index;
 			pte++;
-			pageIndex++
+			page_index++
 		}
 		frm_tab[free_frame_no].fr_status = FRM_MAPPED;
 		frm_tab[free_frame_no].fr_pid = NULLPROC;
@@ -245,11 +244,11 @@ sysinit()
 		frm_tab[free_frame_no].fr_dirty = 0;
 		frm_tab[free_frame_no].fr_vpno = 0;
 		frm_tab[free_frame_no].fr_refcnt = 0;
-		frameIndex++;
+		frame_index++;
 	}
 
 	get_frm(&free_frame_no); /* Getting next free frame for NULL Proc's Page Directory */
-	pde = (FRAME0 + free_frame_no) * NBPG;
+	pde = (pd_t*)((FRAME0 + free_frame_no) * NBPG);
 	proctab[NULLPROC].pdbr = pde;
 	frm_tab[free_frame_no].fr_type = FR_DIR;
 	frm_tab[free_frame_no].fr_pid = NULLPROC;
@@ -257,8 +256,8 @@ sysinit()
 	frm_tab[free_frame_no].fr_dirty = 0;
 	frm_tab[free_frame_no].fr_vpno = 0;
 	frm_tab[free_frame_no].fr_refcnt = 0;
-	int dirIndex;
-	for (dirIndex = 0; dirIndex < 1024; dirIndex++) {
+	int dir_index;
+	for (dir_index = 0; dir_index < 1024; dir_index++) {
 		pde->pd_pres = 0;
 		pde->pd_write = 1; // set this always to one
 		pde->pd_user = 0;
@@ -271,9 +270,9 @@ sysinit()
 		pde->pd_avail = 0;
 		pde->pd_base = 0;
 
-		if (dirIndex >= 0 && dirIndex < 4) {
+		if (dir_index >= 0 && dir_index < 4) {
 			pde->pd_pres = 1; // only when being used
-			pde->pd_base = FRAME0 + dirIndex;
+			pde->pd_base = FRAME0 + dir_index;
 		}
 		pde++;
 	}
