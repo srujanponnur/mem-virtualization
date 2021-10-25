@@ -4,6 +4,7 @@
 #include <kernel.h>
 #include <mem.h>
 #include <proc.h>
+#include <paging.h>
 
 extern struct pentry proctab[];
 /*------------------------------------------------------------------------
