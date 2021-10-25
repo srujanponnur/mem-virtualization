@@ -222,7 +222,7 @@ sysinit()
 		
 		int page_index = 0;
 		get_frm(&free_frame_no); /* Since its initialization, free frames will always be from 0 to 3 */
-		kprint("Frame value is %d", free_frame_no);
+		kprintf("Frame value is %d", free_frame_no);
 		pte = (pt_t *)((FRAME0 + frame_index) * NBPG);
 		while(page_index < 1024) {
 			pte->pt_pres = 1;
@@ -249,7 +249,7 @@ sysinit()
 	}
 
 	get_frm(&free_frame_no); /* Getting next free frame for NULL Proc's Page Directory */
-	kprint("Frame value is %d", free_frame_no);
+	kprintf("Frame value is %d", free_frame_no);
 	pde = (pd_t*)((FRAME0 + free_frame_no) * NBPG);
 	proctab[NULLPROC].pdbr = pde;
 	frm_tab[free_frame_no].fr_type = FR_DIR;
