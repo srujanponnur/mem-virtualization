@@ -42,6 +42,7 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 			return SYSERR;
 		}
 		int ret = bsm_map(pid, 4096, store, hsize);
+		bsm_tab[store].bs_private_heap = 1;  //setting this backing store index as a private heap 
 		if (ret == SYSERR) {
 			restore(ps);
 			return SYSERR;

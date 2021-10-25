@@ -20,6 +20,7 @@ SYSCALL init_bsm()
 		bsm_tab[storeIndex].bs_vpno = -1;
 		bsm_tab[storeIndex].bs_npages = 0;
 		bsm_tab[storeIndex].bs_sem = -1;
+		bsm_tab[storeIndex].bs_private_heap = 0;
 	}
 	restore(ps);
 	return OK;
@@ -64,6 +65,7 @@ SYSCALL free_bsm(int i)
 	bsm_tab[storeIndex].bs_vpno = -1;
 	bsm_tab[storeIndex].bs_npages = 0;
 	bsm_tab[storeIndex].bs_sem = -1;
+	bsm_tab[storeIndex].bs_private_heap = 0;
 	restore(ps);
 }
 
@@ -113,6 +115,7 @@ SYSCALL bsm_map(int pid, int vpno, int source, int npages) //private heap is sti
 	bsm_tab[source].bs_npages = npages;
 	bsm_tab[source].bs_vpno = vpno;
 	bsm_tab[source].bs_sem = 1;
+	bsm_tab[source].bs_private_heap = 0;
 	restore(ps);
 	return OK;
 }
@@ -127,17 +130,35 @@ SYSCALL bsm_unmap(int pid, int vpno, int flag)
 {
 	STATWORD ps;
 	disable ps;
-	int storeIndex;
+	int storeIndex, store, pageth, frameIndex;
 	if (isbadpid(pid)) {
 		restore ps;
 		return SYSERR;
 	}
+
+	unsigned long virtual_address = vpno * NBPG;
+
+	bsm_lookup(pid, virtual_address, &store, &pageth);
+
+	while (frameIndex < NFRAMES) {
+		if (frm_tab[frameIndex].fr_pid == pid) {
+			if (frm_tab[frameIndex].fr_dirty || frm_tab[frameIndex].fr_type == FR_PAGE) { // writing the dirty pages back to the process for other processes 
+				char* wr_strt_addr = (char*)(frameIndex + FRAME0) * NBPG;
+				write_bs(wr_strt_addr, store, pageth);
+			}
+		}
+		frameIndex++;
+	}
+
 	storeIndex = proctab[pid].store;
 	bsm_tab[storeIndex].bs_pid = BADPID;
 	bsm_tab[storeIndex].bs_status = BSM_UNMAPPED;
 	bsm_tab[storeIndex].bs_npages = 0;
 	bsm_tab[storeIndex].bs_vpno = -1;
 	bsm_tab[storeIndex].bs_sem = -1;
+
+	restore(ps);
+	return OK;
 }
 
 

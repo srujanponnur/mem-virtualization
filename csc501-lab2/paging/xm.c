@@ -18,7 +18,7 @@ SYSCALL xmmap(int virtpage, bsd_t source, int npages)
 	  restore(ps);
 	  return SYSERR;
   }
-  int ret_val = bsm_map(currpid, virtpage, source, npages);
+  int ret_val = bsm_map(currpid, virtpage, source, npages); // bs_private_heap is set to zero
   restore(ps);
   return ret_val;
 }

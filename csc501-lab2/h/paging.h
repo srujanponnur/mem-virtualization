@@ -43,6 +43,7 @@ typedef struct {
 } virt_addr_t;
 
 typedef struct {
+  int bs_private_heap;			/* If its mapping is from vcreate or not*/
   int bs_status;			/* MAPPED or UNMAPPED		*/
   int bs_pid;				/* process id using this slot   */
   int bs_vpno;				/* starting virtual page number */
