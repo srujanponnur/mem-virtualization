@@ -34,7 +34,8 @@ SYSCALL get_frm(int* avail)
 	int frameIndex;
 	for (frameIndex = 0; frameIndex < NFRAMES; frameIndex++) {
 		if (frm_tab[frameIndex].fr_type == FRM_UNMAPPED) {
-			return frameIndex;
+			*avail = frameIndex;
+			return OK;
 		}
 	}
     return OK;
