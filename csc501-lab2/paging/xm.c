@@ -33,10 +33,6 @@ SYSCALL xmunmap(int virtpage)
 {
   STATWORD ps;
   disable(ps);
-  if (source < 0 || source > 7 || npages > 256 || npages < 0) {
-	  restore(ps);
-	  return SYSERR;
-  }
   int ret_val = bsm_unmap(currpid, virtpage, -1);
   return ret_val;
 }
