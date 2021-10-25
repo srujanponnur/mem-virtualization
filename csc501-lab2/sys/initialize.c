@@ -214,14 +214,14 @@ sysinit()
 	
 	init_frm();
 	init_bsm();
-	int frame_index = 0, free_frame_index;
+	int frame_index = 0, free_frame_no;
 	pt_t *pte;
 	pd_t *pde;
 	kprintf("reaching here");
 	while (frame_index < GLOBALPAGES) {
 		
 		int page_index = 0;
-		get_frm(&free_frame_index); /* Since its initialization, free frames will always be from 0 to 3 */
+		get_frm(&free_frame_no); /* Since its initialization, free frames will always be from 0 to 3 */
 		//kprint("Frame value is %d", free_frame_no);
 		pte = (pt_t *)((FRAME0 + frame_index) * NBPG);
 		while(page_index < 1024) {
@@ -235,9 +235,9 @@ sysinit()
 			pte->pt_mbz = 0;
 			pte->pt_global = 1;
 			pte->pt_avail = 0;
-			pte->pt_base = (free_frames[frame_index] + 1) * FRAME0 + page_index;
+			pte->pt_base = (free_frame_no + 1) * FRAME0 + page_index;
 			pte++;
-			page_index++
+			page_index++;
 		}
 		frm_tab[free_frame_no].fr_status = FRM_MAPPED;
 		frm_tab[free_frame_no].fr_pid = NULLPROC;
