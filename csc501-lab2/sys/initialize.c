@@ -217,12 +217,12 @@ sysinit()
 	int frame_index = 0, free_frame_no;
 	pt_t *pte;
 	pd_t *pde;
-	kprintf("reaching here");
+	//kprintf("reaching here");
 	while (frame_index < GLOBALPAGES) {
-		
+	        int free_frame_no;	
 		int page_index = 0;
-		get_frm(&free_frame_no); /* Since its initialization, free frames will always be from 0 to 3 */
-		kprintf("Frame value is %d", free_frame_no);
+		get_frm(&free_frame_no); // Since its initialization, free frames will always be from 0 to 3 
+//		kprintf("Frame value is %d", free_frame_no);
 		pte = (pt_t *)((FRAME0 + frame_index) * NBPG);
 		while(page_index < 1024) {
 			pte->pt_pres = 1;
@@ -235,7 +235,10 @@ sysinit()
 			pte->pt_mbz = 0;
 			pte->pt_global = 1;
 			pte->pt_avail = 0;
-			pte->pt_base = (free_frame_no + 1) * FRAME0 + page_index;
+			pte->pt_base = (free_frame_no) * FRAME0 + page_index;
+			if(page_index == 1023 || page_index == 0) {
+                         // kprintf("The value of pt_base for ending page: %d\n",pte->pt_base);
+                        }
 			pte++;
 			page_index++;
 		}
@@ -247,9 +250,8 @@ sysinit()
 		frm_tab[free_frame_no].fr_refcnt = 0;
 		frame_index++;
 	}
-
-	get_frm(&free_frame_no); /* Getting next free frame for NULL Proc's Page Directory */
-	kprintf("Frame value is %d", free_frame_no);
+        
+	get_frm(&free_frame_no); // Getting next free frame for NULL Proc's Page Directory 
 	pde = (pd_t*)((FRAME0 + free_frame_no) * NBPG);
 	proctab[NULLPROC].pdbr = pde;
 	frm_tab[free_frame_no].fr_type = FR_DIR;
@@ -280,7 +282,7 @@ sysinit()
 	}
 	write_cr3(proctab[NULLPROC].pdbr);
 	set_evec(14, pfintr);
-	enable_paging();
+        enable_paging();
 	return(OK);
 }
 

@@ -9,7 +9,7 @@ pfintr:
             pushfl
             cli
             pushal
-            call pfintr
+            call pfint
             popal
             popfl
             iret
