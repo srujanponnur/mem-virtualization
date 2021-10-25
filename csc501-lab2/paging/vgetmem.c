@@ -17,6 +17,7 @@ WORD	*vgetmem(nbytes)
 
 	STATWORD ps;
 	disable(ps);
+	struct	mblock* p, * q, * leftover;
 	if (nbytes == 0 || proctab[currpid].vmemlist->mnext == (struct mblock*)NULL) {
 		restore(ps);
 		return((WORD*)SYSERR);
