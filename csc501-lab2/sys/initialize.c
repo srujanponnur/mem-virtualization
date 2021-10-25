@@ -217,6 +217,7 @@ sysinit()
 	int frame_index = 0, free_frame_index;
 	pt_t *pte;
 	pd_t *pde;
+	kprintf("reaching here");
 	while (frame_index < GLOBALPAGES) {
 		
 		int page_index = 0;
@@ -277,7 +278,7 @@ sysinit()
 		pde++;
 	}
 	write_cr3(proctab[NULLPROC].pdbr);
-	set_evec(14, pfintr)
+	set_evec(14, pfintr);
 	enable_paging();
 	return(OK);
 }
