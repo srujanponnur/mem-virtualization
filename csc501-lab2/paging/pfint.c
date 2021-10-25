@@ -31,7 +31,7 @@ SYSCALL pfint()
 	}
 	//kprintf("The store value is: %d and The page index is: %d", store, page_index);
 	virt_addr_t* temp_addr;
-	temp_addr = (virt_addr_t*)&faul_addr;
+	temp_addr = (virt_addr_t*)&fault_addr;
 
 	pd_index = temp_addr->pd_offset;
 	pt_index = temp_addr->pt_offset;
