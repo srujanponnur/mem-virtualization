@@ -29,7 +29,7 @@ struct	pentry	proctab[NPROC]; /* process table			*/
 int	nextproc;		/* next process slot to use in create	*/
 struct	sentry	semaph[NSEM];	/* semaphore table			*/
 int	nextsem;		/* next sempahore slot to use in screate*/
-bs_map_t bsm_tab[8]   /* The eight mapping entries for backing store*/
+bs_map_t bsm_tab[8];   /* The eight mapping entries for backing store*/
 fr_map_t frm_tab[NFRAMES];
 struct	qent	q[NQENT];	/* q table (see queue.c)		*/
 int	nextqueue;		/* next slot in q structure to use	*/
