@@ -16,13 +16,13 @@ SYSCALL pfint()
 	STATWORD ps;
 	disable(ps);
 
-	unsigned long faul_addr, pdb_val, vp_num;
+	unsigned long fault_addr, pdb_val, vp_num;
 	int store, page_index, ret_val, pd_index, pt_index, free_frame_index;
 
 
 	fault_addr = read_cr2(); //read the faulted address
 
-	pbd_val = proctab[currpid].pdbr;
+	pdb_val = proctab[currpid].pdbr;
 	ret_val = bsm_lookup(currpid, faul_addr, &store, &page_index);
 
 	if (ret_val == SYSERR) {
@@ -37,7 +37,7 @@ SYSCALL pfint()
 	pt_index = temp_addr->pt_offset;
 	page_index = temp_addr->pg_offset;
 
-	pd_t* pde = pbd_val + (sizeof(pd_t) * pd_index);  //pth entry of the page directory
+	pd_t* pde = pdb_val + (sizeof(pd_t) * pd_index);  //pth entry of the page directory
 	if (!pde->pd_pres) {
 		ret_val = get_frm(&free_frame_index);
 		if (ret_val == SYSERR) {
