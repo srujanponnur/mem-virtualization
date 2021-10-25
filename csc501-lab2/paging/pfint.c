@@ -23,7 +23,7 @@ SYSCALL pfint()
 	fault_addr = read_cr2(); //read the faulted address
 
 	pdb_val = proctab[currpid].pdbr;
-	ret_val = bsm_lookup(currpid, faul_addr, &store, &page_index);
+	ret_val = bsm_lookup(currpid, fault_addr, &store, &page_index);
 
 	if (ret_val == SYSERR) {
 		kprintf("Illegal Address, killing the process");
