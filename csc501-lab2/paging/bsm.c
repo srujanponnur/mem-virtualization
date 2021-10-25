@@ -132,7 +132,7 @@ SYSCALL bsm_unmap(int pid, int vpno, int flag)
 {
 	STATWORD ps;
 	disable(ps);
-	int storeIndex, store, pageth, frameIndex;
+	int storeIndex, store, pageth, frameIndex = 0;
 	if (isbadpid(pid)) {
 		restore(ps);
 		return SYSERR;

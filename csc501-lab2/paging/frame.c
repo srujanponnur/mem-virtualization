@@ -33,7 +33,7 @@ SYSCALL get_frm(int* avail)
 {
 	int frameIndex;
 	for (frameIndex = 0; frameIndex < NFRAMES; frameIndex++) {
-		if (frm_tab[frameIndex] == FRM_UNMAPPED) {
+		if (frm_tab[frameIndex].fr_type == FRM_UNMAPPED) {
 			return frameIndex;
 		}
 	}
@@ -52,18 +52,18 @@ SYSCALL free_frm(int i)
 }
 
 
-void init_pd(int pid) {
-
-	int free_frame_no;
-	get_frm(&free_frame_no);
-	int base_add = (FRAME0 + free_frame_no) * NBPG;
-	frm_tab[free_frame_no]
-	frm_tab[free_frame_no].fr_status = FRM_MAPPED;
-	frm_tab[free_frame_no].fr_pid = pid;
-	frm_tab[free_frame_no].fr_type = FR_TBL;
-	return 0;
-}
-
-void alloc_pd(int pid) {
-
-}
+//void init_pd(int pid) {
+//
+//	int free_frame_no;
+//	get_frm(&free_frame_no);
+//	int base_add = (FRAME0 + free_frame_no) * NBPG;
+//	frm_tab[free_frame_no]
+//	frm_tab[free_frame_no].fr_status = FRM_MAPPED;
+//	frm_tab[free_frame_no].fr_pid = pid;
+//	frm_tab[free_frame_no].fr_type = FR_TBL;
+//	return 0;
+//}
+//
+//void alloc_pd(int pid) {
+//
+//}
