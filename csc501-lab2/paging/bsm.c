@@ -42,7 +42,7 @@ SYSCALL get_bsm(int* avail)
 	}
 
 	for (storeIndex = 0; storeIndex < 8; storeIndex++) {
-		if (bsm_tab[storeIndex] == BSM_UNMAPPED) {
+		if (bsm_tab[storeIndex].bs_status == BSM_UNMAPPED) {
 			*avail = storeIndex;
 			break;
 		}
@@ -60,13 +60,14 @@ SYSCALL free_bsm(int i)
 {
 	STATWORD ps;
 	disable(ps);
-	bsm_tab[storeIndex].bs_pid = BADPID; // -1
-	bsm_tab[storeIndex].bs_status = BSM_UNMAPPED;
-	bsm_tab[storeIndex].bs_vpno = -1;
-	bsm_tab[storeIndex].bs_npages = 0;
-	bsm_tab[storeIndex].bs_sem = -1;
-	bsm_tab[storeIndex].bs_private_heap = 0;
+	bsm_tab[i].bs_pid = BADPID; // -1
+	bsm_tab[i].bs_status = BSM_UNMAPPED;
+	bsm_tab[i].bs_vpno = -1;
+	bsm_tab[i].bs_npages = 0;
+	bsm_tab[i].bs_sem = -1;
+	bsm_tab[i].bs_private_heap = 0;
 	restore(ps);
+	return OK;
 }
 
 /*-------------------------------------------------------------------------
@@ -99,6 +100,7 @@ SYSCALL bsm_lookup(int pid, long vaddr, int* store, int* pageth)
 		restore(ps);
 		return SYSERR;
 	}
+	return OK;
 }
 
 
@@ -129,10 +131,10 @@ SYSCALL bsm_map(int pid, int vpno, int source, int npages) //private heap is sti
 SYSCALL bsm_unmap(int pid, int vpno, int flag)
 {
 	STATWORD ps;
-	disable ps;
+	disable(ps);
 	int storeIndex, store, pageth, frameIndex;
 	if (isbadpid(pid)) {
-		restore ps;
+		restore(ps);
 		return SYSERR;
 	}
 
@@ -143,7 +145,7 @@ SYSCALL bsm_unmap(int pid, int vpno, int flag)
 	while (frameIndex < NFRAMES) {
 		if (frm_tab[frameIndex].fr_pid == pid) {
 			if (frm_tab[frameIndex].fr_dirty || frm_tab[frameIndex].fr_type == FR_PAGE) { // writing the dirty pages back to the process for other processes 
-				char* wr_strt_addr = (char*)(frameIndex + FRAME0) * NBPG;
+				char* wr_strt_addr = (char*)((frameIndex + FRAME0) * NBPG);
 				write_bs(wr_strt_addr, store, pageth);
 			}
 		}
