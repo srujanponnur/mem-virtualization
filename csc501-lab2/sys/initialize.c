@@ -328,8 +328,9 @@ sysinit()
 			pte++;
 		}
 	}
-	get_frm(&frmno);
-	proctab[NULLPROC].pdbr = (frmno + FRAME0) * NBPG;
+	int frno;
+	get_frm(&frno);
+	proctab[NULLPROC].pdbr = (frno + FRAME0) * NBPG;
 	frm_tab[frno].fr_pid = NULLPROC;
 	frm_tab[frno].fr_type = FR_DIR;
 	frm_tab[frno].fr_status = FRM_MAPPED;
