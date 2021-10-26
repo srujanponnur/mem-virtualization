@@ -299,7 +299,6 @@ sysinit()
 	init_bsm();
 	init_frm();
 	set_evec(14, pfintr);
-	int i, j;
 	init_queue();
 	pt_t* pte;
 	pd_t* pde;
