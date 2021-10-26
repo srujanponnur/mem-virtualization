@@ -19,6 +19,9 @@ SYSCALL xmmap(int virtpage, bsd_t source, int npages)
 	  return SYSERR;
   }
   int ret_val = bsm_map(currpid, virtpage, source, npages); // bs_private_heap is set to zero
+  if (ret_val) {
+	  proctab[currpid].store = source; // adding the backing store index to the procta;
+  }
   restore(ps);
   return ret_val;
 }
