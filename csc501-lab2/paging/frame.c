@@ -58,7 +58,7 @@ unsigned int init_pd(int pid) {
 	int free_frame_no;
 	unsigned int pd_base;
 	get_frm(&free_frame_no); // Getting next free frame for pid's Page Directory 
-	pd_base = ((FRAME0 + free_frame_no) * NBPG);
+       pd_base = ((FRAME0 + free_frame_no) * NBPG);
 	frm_tab[free_frame_no].fr_type = FR_DIR;
 	frm_tab[free_frame_no].fr_pid = pid;
 	frm_tab[free_frame_no].fr_status = FRM_MAPPED;

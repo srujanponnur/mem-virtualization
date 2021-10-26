@@ -142,9 +142,12 @@ SYSCALL bsm_unmap(int pid, int vpno, int flag)
 
 	bsm_lookup(pid, virtual_address, &store, &pageth);
 
+	//kprintf("The store and pageth are %d and %d\n", store, pageth);
+
 	while (frameIndex < NFRAMES) {
 		if (frm_tab[frameIndex].fr_pid == pid) {
 			if (frm_tab[frameIndex].fr_dirty || frm_tab[frameIndex].fr_type == FR_PAGE) { // writing the dirty pages back to the process for other processes 
+			//kprintf("Reaching inside bsm_unmap frames, pid: %d and frameIndex: %d\n", pid, frameIndex);
 				char* wr_strt_addr = (char*)((frameIndex + FRAME0) * NBPG);
 				write_bs(wr_strt_addr, store, pageth);
 			}
