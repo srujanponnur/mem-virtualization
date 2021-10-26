@@ -50,10 +50,8 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 		proctab[pid].store = store;
 		proctab[pid].vhpno = 4096;                  
 		proctab[pid].vhpnpages = hsize;
-		struct mblock *bs_mem = BACKING_STORE_BASE + store * BACKING_STORE_UNIT_SIZE;
-		bs_mem->mlen = NBPG * hsize;
-		bs_mem->mnext = NULL;
-		proctab[pid].vmemlist->mnext = 4096 * NBPG;
+		proctab[pid].vmemlist->mnext = BACKING_STORE_BASE + store * BACKING_STORE_UNIT_SIZE;
+		proctab[pid].vmemlist->mnext->mlen = hsize * NBPG;
 		restore(ps);
 		return pid;
 	};
