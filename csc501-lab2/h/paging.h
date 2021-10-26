@@ -95,4 +95,5 @@ SYSCALL write_bs(char *, bsd_t, int);
 #define BACKING_STORE_BASE	0x00800000
 #define BACKING_STORE_UNIT_SIZE 0x00100000
 
-extern void init_pd(int);
+extern unsigned int init_pd(int);
+extern void alloc_pd(unsigned int);

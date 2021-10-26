@@ -273,7 +273,7 @@ sysinit()
 		pde->pd_avail = 0;
 		pde->pd_base = 0;
 
-		if (dir_index >= 0 && dir_index < 4) {
+		if (dir_index >= 0 && dir_index < GLOBALPAGES) {
 			pde->pd_pres = 1; // only when being used
 			pde->pd_base = FRAME0 + dir_index;
 		}
@@ -282,80 +282,19 @@ sysinit()
 
 
 	//printing page dir
-	pde = (pd_t*)((FRAME0 + free_frame_no) * NBPG);
-	for (dir_index = 0; dir_index < 1024; dir_index++) {
-		if (pde->pd_pres) {
-			kprintf("The write and base values are %d and %d", pde->pd_write, pde->pd_base);
-			pde++;
-		}
-	}
+	//pde = (pd_t*)((FRAME0 + free_frame_no) * NBPG);
+	//for (dir_index = 0; dir_index < 1024; dir_index++) {
+	//	if (pde->pd_pres) {
+	//		kprintf("The write and base values are %d and %d", pde->pd_write, pde->pd_base);
+	//		pde++;
+	//	}
+	//}
 
 	kprintf("\nThe value of pdbr is %d", proctab[NULLPROC].pdbr);
 
 	write_cr3(proctab[NULLPROC].pdbr);
 	set_evec(14, pfintr);
     enable_paging();
-
-	/*init_bsm();
-	init_frm();
-	set_evec(14, pfintr);
-	//init_queue();
-	pt_t* pte;
-	pd_t* pde;
-	int frmno = 0;
-	for (i = 0; i < 4; i++)
-	{
-		get_frm(&frmno);
-		frm_tab[frmno].fr_status = FRM_MAPPED;
-		frm_tab[frmno].fr_type = FR_TBL;
-		frm_tab[frmno].fr_pid = NULLPROC;
-		pte = (FRAME0 + frmno) * NBPG;
-
-		for (j = 0; j < 1024; j++)
-		{
-			pte->pt_pres = 1;
-			pte->pt_write = 1;
-			pte->pt_user = 0;
-			pte->pt_pwt = 0;
-			pte->pt_pcd = 0;
-			pte->pt_acc = 0;
-			pte->pt_dirty = 0;
-			pte->pt_mbz = 0;
-			pte->pt_global = 1;
-			pte->pt_avail = 0;
-			pte->pt_base = i * FRAME0 + j;
-			pte++;
-		}
-	}
-	int frno;
-	get_frm(&frno);
-	proctab[NULLPROC].pdbr = (frno + FRAME0) * NBPG;
-	frm_tab[frno].fr_pid = NULLPROC;
-	frm_tab[frno].fr_type = FR_DIR;
-	frm_tab[frno].fr_status = FRM_MAPPED;
-	frm_tab[frno].fr_vpno = 0;
-	frm_tab[frno].fr_refcnt = 4;
-	pde = proctab[NULLPROC].pdbr;
-	for (i = 0; i < 1024; i++)
-	{
-		pde[i].pd_pres = 0;
-		pde[i].pd_write = 1;
-		pde[i].pd_user = 0;
-		pde[i].pd_pwt = 0;
-		pde[i].pd_pcd = 0;
-		pde[i].pd_acc = 1;
-		pde[i].pd_mbz = 0;
-		pde[i].pd_global = 0;
-		pde[i].pd_avail = 0;
-		pde[i].pd_base = 0;
-		if (i >= 0 && i < 4)
-		{
-			pde[i].pd_pres = 1;
-			pde[i].pd_base = FRAME0 + i;
-		}
-	}
-	write_cr3(proctab[NULLPROC].pdbr);
-	enable_paging();*/
 	return(OK);
 }
 

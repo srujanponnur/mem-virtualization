@@ -53,18 +53,43 @@ SYSCALL free_frm(int i)
 }
 
 
-//void init_pd(int pid) {
-//
-//	int free_frame_no;
-//	get_frm(&free_frame_no);
-//	int base_add = (FRAME0 + free_frame_no) * NBPG;
-//	frm_tab[free_frame_no]
-//	frm_tab[free_frame_no].fr_status = FRM_MAPPED;
-//	frm_tab[free_frame_no].fr_pid = pid;
-//	frm_tab[free_frame_no].fr_type = FR_TBL;
-//	return 0;
-//}
-//
-//void alloc_pd(int pid) {
-//
-//}
+unsigned int init_pd(int pid) {
+
+	int free_frame_no;
+	unsigned int pd_base;
+	get_frm(&free_frame_no); // Getting next free frame for pid's Page Directory 
+	pd_base = ((FRAME0 + free_frame_no) * NBPG);
+	frm_tab[free_frame_no].fr_type = FR_DIR;
+	frm_tab[free_frame_no].fr_pid = pid;
+	frm_tab[free_frame_no].fr_status = FRM_MAPPED;
+	frm_tab[free_frame_no].fr_dirty = 0;
+	frm_tab[free_frame_no].fr_vpno = 0;
+	frm_tab[free_frame_no].fr_refcnt = 4;
+	return pd_base;
+}
+
+void alloc_pd(unsigned int pd_base) {
+
+	int dir_index;
+	pd_t* pde = (pd_t *) pd_base;
+
+	for (dir_index = 0 ; dir_index < 1024; dir_index++) {
+		pde->pd_pres = 0;
+		pde->pd_write = 1; // set this always to one
+		pde->pd_user = 0;
+		pde->pd_pwt = 0;
+		pde->pd_pcd = 0;
+		pde->pd_acc = 0;
+		pde->pd_mbz = 0;
+		pde->pd_fmb = 0;
+		pde->pd_global = 0;
+		pde->pd_avail = 0;
+		pde->pd_base = 0;
+		if (dir_index >= 0 && dir_index < GLOBALPAGES) {
+			pde->pd_pres = 1; // only when being used
+			pde->pd_base = FRAME0 + dir_index;
+		}
+		pde++;
+	}
+	return;
+}
