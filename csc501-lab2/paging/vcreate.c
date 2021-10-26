@@ -47,6 +47,7 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 			restore(ps);
 			return SYSERR;
 		}
+                kprintf("The store value: %d and the starting address is: %d\n", store, BACKING_STORE_BASE + store * BACKING_STORE_UNIT_SIZE);
 		proctab[pid].store = store;
 		proctab[pid].vhpno = 4096;                  
 		proctab[pid].vhpnpages = hsize;
