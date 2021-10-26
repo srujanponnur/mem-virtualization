@@ -35,12 +35,6 @@ SYSCALL get_bsm(int* avail)
 	STATWORD ps;
 	disable(ps);
 	int storeIndex;
-
-	if (*avail == NULL) {
-		restore(ps);
-		return SYSERR;
-	}
-
 	for (storeIndex = 0; storeIndex < 8; storeIndex++) {
 		if (bsm_tab[storeIndex].bs_status == BSM_UNMAPPED) {
 			*avail = storeIndex;
