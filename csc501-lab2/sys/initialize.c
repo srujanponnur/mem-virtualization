@@ -216,14 +216,13 @@ sysinit()
 	init_bsm();
 	int frame_index = 0, free_frame_no;
 	pt_t *pte;
-	pd_t *pde;
 	//kprintf("reaching here");
 	while (frame_index < GLOBALPAGES) {
 	        int free_frame_no;	
 		int page_index = 0;
 		get_frm(&free_frame_no); // Since its initialization, free frames will always be from 0 to 3 
 //		kprintf("Frame value is %d", free_frame_no);
-		pte = (pt_t *)((FRAME0 + frame_index) * NBPG);
+		pte = (pt_t *)((FRAME0 + free_frame_no) * NBPG);
 		while(page_index < 1024) {
 			pte->pt_pres = 1;
 			pte->pt_write = 1;
@@ -252,14 +251,14 @@ sysinit()
 	}
         
 	get_frm(&free_frame_no); // Getting next free frame for NULL Proc's Page Directory 
-	pde = (pd_t*)((FRAME0 + free_frame_no) * NBPG);
-	proctab[NULLPROC].pdbr = pde;
+	pd_t*  pde = (pd_t*)((FRAME0 + free_frame_no) * NBPG);
+	proctab[NULLPROC].pdbr = (FRAME0 + free_frame_no) * NBPG;
 	frm_tab[free_frame_no].fr_type = FR_DIR;
 	frm_tab[free_frame_no].fr_pid = NULLPROC;
 	frm_tab[free_frame_no].fr_status = FRM_MAPPED;
 	frm_tab[free_frame_no].fr_dirty = 0;
 	frm_tab[free_frame_no].fr_vpno = 0;
-	frm_tab[free_frame_no].fr_refcnt = 0;
+	frm_tab[free_frame_no].fr_refcnt = 4;
 	int dir_index;
 	for (dir_index = 0; dir_index < 1024; dir_index++) {
 		pde->pd_pres = 0;
@@ -282,7 +281,7 @@ sysinit()
 	}
 	write_cr3(proctab[NULLPROC].pdbr);
 	set_evec(14, pfintr);
-        enable_paging();
+    enable_paging();
 	return(OK);
 }
 
