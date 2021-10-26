@@ -146,7 +146,7 @@ int main()
 	sleep(3);*/
 
 	kprintf("\n1: shared memory\n");
-	pid1 = create(proc1_test1, 2000, 20, "proc1_test1", 0, NULL);
+	pid1 = create(proc1_test4, 2000, 20, "proc1_test1", 0, NULL);
 	resume(pid1);
 	sleep(10);
 
