@@ -215,7 +215,7 @@ sysinit()
 	init_frm();
 	init_bsm();
 	int frame_index = 0, free_frame_no;
-	/*pt_t* pte;
+	pt_t* pte;
 	//kprintf("reaching here");
 	while (frame_index < GLOBALPAGES) {
 	    int free_frame_no;	
@@ -294,7 +294,7 @@ sysinit()
 
 	write_cr3(proctab[NULLPROC].pdbr);
 	set_evec(14, pfintr);
-    enable_paging();*/
+    enable_paging();
 
 	/*init_bsm();
 	init_frm();
