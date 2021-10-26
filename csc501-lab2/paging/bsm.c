@@ -163,4 +163,12 @@ SYSCALL bsm_unmap(int pid, int vpno, int flag)
 	return OK;
 }
 
-
+SYSCALL print_bs() {
+	int store_index;
+	for (store_index = 0; store_index < 8; store_index++) {
+		if (bsm_tab[store_index].bs_status == BSM_MAPPED) {
+			kprintf("Mapped index: %d", store_index);
+		}
+	}
+	return OK;
+}

@@ -12,17 +12,10 @@ int get_bs(bsd_t bs_id, unsigned int npages) { // private heap is still pending
         return SYSERR;
     }
 
-    
-    if(bsm_tab[bs_id].bs_status == BSM_UNMAPPED) {
-        bsm_tab[bs_id].bs_status = BSM_MAPPED;
-        bsm_tab[bs_id].bs_pid = currpid;
-        bsm_tab[bs_id].bs_npages = npages;
-        bsm_tab[bs_id].bs_vpno = 0;
-        bsm_tab[bs_id].bs_sem = -1;
-        bsm_tab[bs_id].bs_private_heap = 0;
-        restore(ps);
-        return npages;
+    if(bsm_tab[bs_id].bs_status == BSM_UNMAPPED) {  
+        return bsm_tab[bs_id].bs_npages;
     }
+
     else if (bsm_tab[bs_id].bs_status == BSM_MAPPED && bsm_tab[bs_id].bs_pid == currpid) {
         restore(ps);
         return bsm_tab[bs_id].bs_npages;

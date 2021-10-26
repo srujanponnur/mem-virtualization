@@ -20,13 +20,13 @@ void proc1_test1(char* msg, int lck) {
 	ret = get_bs(TEST1_BS, 100);
 	kprintf("The return value is %d", ret);
 
-	/*if (xmmap(PROC1_VPNO, TEST1_BS, 100) == SYSERR) {
+	if (xmmap(PROC1_VPNO, TEST1_BS, 100) == SYSERR) {
 		kprintf("xmmap call failed\n");
 		sleep(3);
 		return;
 	}
 
-	addr = (char*)PROC1_VADDR;
+	/*addr = (char*)PROC1_VADDR;
 	for (i = 0; i < 26; i++) {
 		*(addr + i * NBPG) = 'A' + i;
 	}
@@ -35,9 +35,10 @@ void proc1_test1(char* msg, int lck) {
 
 	for (i = 0; i < 26; i++) {
 		kprintf("0x%08x: %c\n", addr + i * NBPG, *(addr + i * NBPG));
-	}
+	}*/
 
-	xmunmap(PROC1_VPNO);*/
+	xmunmap(PROC1_VPNO);
+	print_bs();
 	return;
 }
 
