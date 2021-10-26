@@ -10,7 +10,7 @@
 #include <paging.h>
 
 LOCAL int newpid();
-
+void allocate_pd(int);
 /*------------------------------------------------------------------------
  *  create  -  create a process to start running a procedure
  *------------------------------------------------------------------------
@@ -95,10 +95,43 @@ SYSCALL create(procaddr,ssize,priority,name,nargs,args)
 	*--saddr = 0;		/* %esi */
 	*--saddr = 0;		/* %edi */
 	*pushsp = pptr->pesp = (unsigned long)saddr;
-
+	allocate_pd(pid);//update pd whenever a new process is created
 	restore(ps);
 
 	return(pid);
+}
+
+void allocate_pd(int pid)
+{
+	int i, frno = 0;
+	pd_t* pde;
+	if (get_frm(&frno) == SYSERR)
+		return SYSERR;
+	proctab[pid].pdbr = (frno + FRAME0) * NBPG;
+	frm_tab[frno].fr_pid = pid;
+	frm_tab[frno].fr_type = FR_DIR;
+	frm_tab[frno].fr_status = FRM_MAPPED;
+	frm_tab[frno].fr_vpno = 0;
+	frm_tab[frno].fr_refcnt = 4;
+	pde = proctab[pid].pdbr;
+	for (i = 0; i < 1024; i++)
+	{
+		pde[i].pd_pres = 0;
+		pde[i].pd_write = 1;
+		pde[i].pd_user = 0;
+		pde[i].pd_pwt = 0;
+		pde[i].pd_pcd = 0;
+		pde[i].pd_acc = 1;
+		pde[i].pd_mbz = 0;
+		pde[i].pd_global = 0;
+		pde[i].pd_avail = 0;
+		pde[i].pd_base = 0;
+		if (i >= 0 && i < 4)
+		{
+			pde[i].pd_pres = 1;
+			pde[i].pd_base = FRAME0 + i;
+		}
+	}
 }
 
 /*------------------------------------------------------------------------

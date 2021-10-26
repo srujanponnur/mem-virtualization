@@ -296,7 +296,7 @@ sysinit()
 	set_evec(14, pfintr);
     enable_paging();*/
 
-	init_bsm();
+	/*init_bsm();
 	init_frm();
 	set_evec(14, pfintr);
 	//init_queue();
@@ -355,7 +355,7 @@ sysinit()
 		}
 	}
 	write_cr3(proctab[NULLPROC].pdbr);
-	enable_paging();
+	enable_paging();*/
 	return(OK);
 }
 
