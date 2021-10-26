@@ -299,7 +299,7 @@ sysinit()
 	init_bsm();
 	init_frm();
 	set_evec(14, pfintr);
-	init_queue();
+	//init_queue();
 	pt_t* pte;
 	pd_t* pde;
 	int frmno = 0;
