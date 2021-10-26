@@ -43,6 +43,24 @@ void proc1_test1(char* msg, int lck) {
 	return;
 }
 
+void proc1_test4(char* msg, int lck) {
+
+	char* addr;
+	int i;
+
+	int* x;
+	int temp;
+	x = vgetmem(1000);  /* allocates some memory in the virtual heap which is in virtual memory */
+		   /* the following  statement will cause a page fault. The page fault handling routing will read in the required page from backing store into the main memory, set the proper page tables and the page directory entries and reexecute the statement. */
+	*x = 100;
+	x++;
+	*x = 200;
+	temp = *x;  /* You are reading back from the virtual heap to check if the previous write was successful */
+	kprintf("The value of x is : %d", x);
+	vfreemem(--x, 1000); /* frees the allocation in the virtual heap */
+	return;
+}
+
 void proc1_test2(char* msg, int lck) {
 	int* x;
 
@@ -76,6 +94,26 @@ void proc1_test3(char* msg, int lck) {
 
 
 
+void proc1_test5(char* msg, int lck) {
+
+	char* addr;
+	int i;
+
+	addr = (char*)0x0;
+
+	for (i = 0; i < 1024; i++) {
+		*(addr + i * NBPG) = 'B';
+	}
+
+	for (i = 0; i < 1024; i++) {
+		kprintf("0x%08x: %c\n", addr + i * NBPG, *(addr + i * NBPG));
+	}
+
+	return;
+}
+
+
+
 /*------------------------------------------------------------------------
  *  main  --  user main program
  *------------------------------------------------------------------------
@@ -90,7 +128,7 @@ int main()
 	int pid1;
 	int pid2;
 
-	kprintf("\n1: shared memory\n");
+	/*kprintf("\n1: shared memory\n");
 	pid1 = create(proc1_test1, 2000, 20, "proc1_test1", 0, NULL);
 	resume(pid1);
 	sleep(10);
@@ -105,7 +143,13 @@ int main()
 	kprintf("\n3: Frame test\n");
 	pid1 = create(proc1_test3, 2000, 20, "proc1_test3", 0, NULL);
 	resume(pid1);
-	sleep(3);
+	sleep(3);*/
+
+	kprintf("\n1: shared memory\n");
+	pid1 = create(proc1_test1, 2000, 20, "proc1_test1", 0, NULL);
+	resume(pid1);
+	sleep(10);
+
 
     shutdown();
 }
