@@ -43,6 +43,21 @@ void proc1_test1(char* msg, int lck) {
 	return;
 }
 
+void proc1_test4(char* msg, int lck) {
+
+	char* x;
+	char temp;
+	get_bs(4, 100);
+	xmmap(7000, 4, 100);    /* This call simply creates an entry in the backing store mapping */
+	x = 7000 * 4096;
+	*x = 'Y';                            /* write into virtual memory, will create a fault and system should proceed as in the prev example */
+	temp = *x;                        /* read back and check */
+	kprintf("The value of temp is %d", temp);
+	xmunmap(7000);
+	return;
+}
+
+
 
 
 void proc1_test2(char* msg, int lck) {
@@ -58,23 +73,6 @@ void proc1_test2(char* msg, int lck) {
 	vfreemem(x, 1024);
 }
 
-void proc1_test4(char* msg, int lck) {
-
-	char* addr;
-	int i;
-
-	int* x;
-	int temp;
-	x = vgetmem(1000);  /* allocates some memory in the virtual heap which is in virtual memory */
-		   /* the following  statement will cause a page fault. The page fault handling routing will read in the required page from backing store into the main memory, set the proper page tables and the page directory entries and reexecute the statement. */
-	*x = 100;
-	x++;
-	*x = 200;
-	temp = *x;  /* You are reading back from the virtual heap to check if the previous write was successful */
-	kprintf("The value of x is : %d", *x);
-	vfreemem(--x, 1000); /* frees the allocation in the virtual heap */
-	return;
-}
 
 
 void proc1_test3(char* msg, int lck) {
@@ -151,7 +149,7 @@ int main()
 	sleep(3);*/
 
 	kprintf("\n1: shared memory\n");
-	pid1 = vcreate(proc1_test4, 2000, 100, 20, "proc1_test4", 0, NULL);
+	pid1 = create(proc1_test4, 2000, 20, "proc1_test4", 0, NULL);
 	resume(pid1);
 	sleep(10);
 
