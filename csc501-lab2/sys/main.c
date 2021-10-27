@@ -98,13 +98,12 @@ void proc1_test4(char* msg, int lck) {
 
 
 void proc1_test5(char* msg, int lck) {
-
 	
 	char* x;
 	char temp_b;
 	xmmap(6000, 4, 100);
 	x = 6000 * 4096;
-	temp_b = *x:   /* Surprise: Now, temp_b will get the value 'Y' written by the process A to this backing store '4' */
+	temp_b = *x;   /* Surprise: Now, temp_b will get the value 'Y' written by the process A to this backing store '4' */
 	kprintf("The value read from process A's store is %c", temp_b);
 	return;
 }
@@ -142,14 +141,14 @@ int main()
 	resume(pid1);
 	sleep(3);*/
 
-	kprintf("\n1: shared memory\n");
+	kprintf("\nCreating a backing store");
 	pid1 = create(proc1_test4, 2000, 20, "proc1_test4", 0, NULL);
 	resume(pid1);
 	sleep(6);
 
-	kprintf("\n1: shared memory\n");
-	pid1 = create(proc1_test5, 2000, 20, "proc1_test5", 0, NULL);
-	resume(pid1);
+	kprintf("\nUsage of Same Backing Store\n");
+	pid2 = create(proc1_test5, 2000, 20, "proc1_test5", 0, NULL);
+	resume(pid2);
 	sleep(10);
 
     shutdown();
