@@ -71,7 +71,7 @@ void proc1_test4(char* msg, int lck) {
 	x++;
 	*x = 200;
 	temp = *x;  /* You are reading back from the virtual heap to check if the previous write was successful */
-	kprintf("The value of x is : %d", x);
+	kprintf("The value of x is : %d", *x);
 	vfreemem(--x, 1000); /* frees the allocation in the virtual heap */
 	return;
 }
