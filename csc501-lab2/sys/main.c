@@ -43,19 +43,6 @@ void proc1_test1(char* msg, int lck) {
 	return;
 }
 
-void proc1_test4(char* msg, int lck) {
-
-	char* x;
-	char temp;
-	get_bs(4, 100);
-	xmmap(7000, 4, 100);    /* This call simply creates an entry in the backing store mapping */
-	x = 7000 * 4096;
-	*x = 'Y';                            /* write into virtual memory, will create a fault and system should proceed as in the prev example */
-	temp = *x;                        /* read back and check */
-	kprintf("The value of temp is %d", temp);
-	xmunmap(7000);
-	return;
-}
 
 
 
@@ -94,24 +81,31 @@ void proc1_test3(char* msg, int lck) {
 }
 
 
+void proc1_test4(char* msg, int lck) {
+
+	char* x;
+	char temp;
+	get_bs(4, 100);
+	xmmap(7000, 4, 100);    /* This call simply creates an entry in the backing store mapping */
+	x = 7000 * 4096;
+	*x = 'Y';                            /* write into virtual memory, will create a fault and system should proceed as in the prev example */
+	temp = *x;                        /* read back and check */
+	kprintf("The value of temp is %c", temp);
+	xmunmap(7000);
+	return;
+}
 
 
 
 void proc1_test5(char* msg, int lck) {
 
-	char* addr;
-	int i;
-
-	addr = (char*)0x0;
-
-	for (i = 0; i < 1024; i++) {
-		*(addr + i * NBPG) = 'B';
-	}
-
-	for (i = 0; i < 1024; i++) {
-		kprintf("0x%08x: %c\n", addr + i * NBPG, *(addr + i * NBPG));
-	}
-
+	
+	char* x;
+	char temp_b;
+	xmmap(6000, 4, 100);
+	x = 6000 * 4096;
+	temp_b = *x:   /* Surprise: Now, temp_b will get the value 'Y' written by the process A to this backing store '4' */
+	kprintf("The value read from process A's store is %c", temp_b);
 	return;
 }
 
@@ -151,8 +145,12 @@ int main()
 	kprintf("\n1: shared memory\n");
 	pid1 = create(proc1_test4, 2000, 20, "proc1_test4", 0, NULL);
 	resume(pid1);
-	sleep(10);
+	sleep(6);
 
+	kprintf("\n1: shared memory\n");
+	pid1 = create(proc1_test5, 2000, 20, "proc1_test5", 0, NULL);
+	resume(pid1);
+	sleep(10);
 
     shutdown();
 }
