@@ -43,6 +43,21 @@ void proc1_test1(char* msg, int lck) {
 	return;
 }
 
+
+
+void proc1_test2(char* msg, int lck) {
+	int* x;
+
+	kprintf("ready to allocate heap space\n");
+	x = vgetmem(1024);
+	kprintf("heap allocated at %x\n", x);
+	*x = 100;
+	*(x + 1) = 200;
+
+	kprintf("heap variable: %d %d\n", *x, *(x + 1));
+	vfreemem(x, 1024);
+}
+
 void proc1_test4(char* msg, int lck) {
 
 	char* addr;
@@ -61,18 +76,6 @@ void proc1_test4(char* msg, int lck) {
 	return;
 }
 
-void proc1_test2(char* msg, int lck) {
-	int* x;
-
-	kprintf("ready to allocate heap space\n");
-	x = vgetmem(1024);
-	kprintf("heap allocated at %x\n", x);
-	*x = 100;
-	*(x + 1) = 200;
-
-	kprintf("heap variable: %d %d\n", *x, *(x + 1));
-	vfreemem(x, 1024);
-}
 
 void proc1_test3(char* msg, int lck) {
 
@@ -91,6 +94,8 @@ void proc1_test3(char* msg, int lck) {
 
 	return;
 }
+
+
 
 
 
@@ -146,7 +151,7 @@ int main()
 	sleep(3);*/
 
 	kprintf("\n1: shared memory\n");
-	pid1 = create(proc1_test4, 2000, 100, "proc1_test1", 0, NULL);
+	pid1 = vcreate(proc1_test4, 2000, 100, 20, "proc1_test4", 0, NULL);
 	resume(pid1);
 	sleep(10);
 
