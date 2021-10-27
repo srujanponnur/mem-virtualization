@@ -19,7 +19,7 @@ SYSCALL pfint()
 	unsigned long fault_addr, pdb_val, vp_num;
 	int store, page_index, ret_val, pd_index, pt_index, free_frame_index;
 
-        kprintf("Reaching page fault handler \n");
+    //kprintf("Reaching page fault handler \n");
 	fault_addr = read_cr2(); //read the faulted address
       //kprintf("The faulted address is %d\n", fault_addr);
 	pdb_val = proctab[currpid].pdbr;
