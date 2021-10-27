@@ -21,10 +21,10 @@ SYSCALL pfint()
 
         kprintf("Reaching page fault handler \n");
 	fault_addr = read_cr2(); //read the faulted address
-        kprintf("The faulted address is %d\n", fault_addr);
+      //kprintf("The faulted address is %d\n", fault_addr);
 	pdb_val = proctab[currpid].pdbr;
 	ret_val = bsm_lookup(currpid, fault_addr, &store, &page_index);
-        kprintf("looked up store and page_inded values are %d and %d and the return value is: %d\n",store, page_index, ret_val);
+      //kprintf("looked up store and page_inded values are %d and %d and the return value is: %d\n",store, page_index, ret_val);
 	if (ret_val == SYSERR) {
 		kprintf("Illegal Address, killing the process");
 		kill(currpid);
@@ -37,12 +37,12 @@ SYSCALL pfint()
 	pt_index = temp_addr->pt_offset;
 	page_index = temp_addr->pg_offset;
 
-	kprintf("The page index: %d, page table index: %d and page dir index: %d \n",page_index,pt_index,pd_index);	
+	//kprintf("The page index: %d, page table index: %d and page dir index: %d \n",page_index,pt_index,pd_index);	
 
 	pd_t* pde = pdb_val + (sizeof(pd_t) * pd_index);  //pth entry of the page directory
 	if (!pde->pd_pres) {
 		ret_val = get_frm(&free_frame_index);
-                kprintf("The frame fetched for table is: %d\n", free_frame_index);
+          //kprintf("The frame fetched for table is: %d\n", free_frame_index);
 		if (ret_val == SYSERR) {
 			restore(ps);
 			return SYSERR;
@@ -90,7 +90,7 @@ SYSCALL pfint()
 	if (!pte->pt_pres) {
 
 		ret_val = get_frm(&free_frame_index);
-		kprintf("The frame fetched for page is: %d\n", free_frame_index); 
+		//kprintf("The frame fetched for page is: %d\n", free_frame_index); 
 		if (ret_val == SYSERR) {
 			restore(ps);
 			return SYSERR;
