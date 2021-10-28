@@ -50,7 +50,8 @@ int	console_dev;		/* the console device			*/
 
 /*  added for the demand paging */
 int page_replace_policy = SC;
-
+extern list_node* head;
+extern int size;
 /************************************************************************/
 /***				NOTE:				      ***/
 /***								      ***/

@@ -97,8 +97,7 @@ typedef struct list_node {
 	struct list_node* prev;
 } list_node;
 
-extern list_node* head;
-extern int size;
+
 
 
 #define GLOBALPAGES 4
