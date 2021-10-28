@@ -121,7 +121,7 @@ void remove_from_list(int frame_index) {
 	if (frame_index == -1) {
 		return; //cant remove the head
 	}
-	list_node * temp = head.next;
+	list_node * temp = head->next;
 	while (temp != head) {
 		if (temp->frame_index == frame_index) {
 			list_node * prev_node = temp->prev;
@@ -141,7 +141,7 @@ void remove_from_list(int frame_index) {
 void display_list() {
 	STATWORD ps;
 	disable(ps);
-	list_node* temp = head.next;
+	list_node* temp = head->next;
 	while (temp != head) {
 		kprintf("Frame Index: %d \n", temp->frame_index);
 		temp = temp->next;
