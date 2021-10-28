@@ -17,10 +17,11 @@ SYSCALL pfint()
 	disable(ps);
 
 	unsigned long fault_addr, pdb_val, vp_num;
-	int store, page_index, ret_val, pd_index, pt_index, free_frame_index;
+	int store, page_index, ret_val, pd_index, pt_index, free_frame_index, virtual_pageno;
 
     //kprintf("Reaching page fault handler \n");
 	fault_addr = read_cr2(); //read the faulted address
+	virtual_pageno = fault_addr / NBPG;
       //kprintf("The faulted address is %d\n", fault_addr);
 	pdb_val = proctab[currpid].pdbr;
 	ret_val = bsm_lookup(currpid, fault_addr, &store, &page_index);
@@ -90,6 +91,7 @@ SYSCALL pfint()
 	if (!pte->pt_pres) {
 
 		ret_val = get_frm(&free_frame_index);
+		insert_into_list(free_frame_index);
 		//kprintf("The frame fetched for page is: %d\n", free_frame_index); 
 		if (ret_val == SYSERR) {
 			restore(ps);
@@ -103,7 +105,7 @@ SYSCALL pfint()
 		int table_frame_index = pde->pd_base - FRAME0;
 		//kprintf(" Table frame Index is: %d ", table_frame_index);
 		frm_tab[table_frame_index].fr_refcnt++; // update reference count of the page table
-		frm_tab[free_frame_index].fr_vpno = 0;
+		frm_tab[free_frame_index].fr_vpno = virtual_pageno;
 
 		char* start_address = (char*)((FRAME0 + free_frame_index) * NBPG); // starting address of the frame
 		read_bs(start_address, store, page_index); // writing from store to the free frame 
@@ -111,8 +113,6 @@ SYSCALL pfint()
 		pte->pt_pres = 1;
 		pte->pt_write = 1;
 		pte->pt_base = FRAME0 + free_frame_index; //pointing page table entry to point to free frame
-
-		// --------------------------------  need  to update few page replacement related datastructures  ---------------------------------
 
 	}
 	restore(ps);

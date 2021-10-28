@@ -27,14 +27,14 @@ void proc1_test1(char* msg, int lck) {
 	}
 
 	addr = (char*)PROC1_VADDR;
-	for (i = 0; i < 26; i++) {
+	for (i = 0; i < 5; i++) {
                 kprintf("\n\nThe address being accessed is %d\n",(addr + i * NBPG));
 		*(addr + i * NBPG) = 'A' + i;
 	}
 
         sleep(6);
 
-	for (i = 0; i < 26; i++) {
+	for (i = 0; i < 5; i++) {
 		kprintf("0x%08x: %c\n", addr + i * NBPG, *(addr + i * NBPG));
 	}
 
@@ -90,7 +90,7 @@ void proc1_test4(char* msg, int lck) {
 	x = 7000 * 4096;
 	*x = 'Y';                            /* write into virtual memory, will create a fault and system should proceed as in the prev example */
 	temp = *x;                        /* read back and check */
-	kprintf("The value of temp is %c", temp);
+	kprintf("\nThe value of temp is %c", temp);
 	xmunmap(7000);
 	return;
 }
@@ -124,12 +124,12 @@ int main()
 	int pid1;
 	int pid2;
 
-	/*kprintf("\n1: shared memory\n");
+	kprintf("\n1: shared memory\n");
 	pid1 = create(proc1_test1, 2000, 20, "proc1_test1", 0, NULL);
 	resume(pid1);
 	sleep(10);
 
-
+	/*
 	kprintf("\n2: vgetmem/vfreemem\n");
 	pid1 = vcreate(proc1_test2, 2000, 100, 20, "proc1_test2", 0, NULL);
 	kprintf("pid %d has private heap\n", pid1);
@@ -141,15 +141,15 @@ int main()
 	resume(pid1);
 	sleep(3);*/
 
-	kprintf("\nCreating a backing store");
+	/*kprintf("\nCreating a backing store\n");
 	pid1 = create(proc1_test4, 2000, 20, "proc1_test4", 0, NULL);
 	resume(pid1);
-	sleep(6);
+	sleep(10);
 
 	kprintf("\nUsage of Same Backing Store\n");
 	pid2 = create(proc1_test5, 2000, 20, "proc1_test5", 0, NULL);
 	resume(pid2);
-	sleep(10);
+	sleep(10);*/
 
     shutdown();
 }

@@ -50,6 +50,7 @@ int	console_dev;		/* the console device			*/
 
 /*  added for the demand paging */
 int page_replace_policy = SC;
+alloc_queue fr_rep_queue[NFRAMES]; /* queue for tracking page replacment frames*/
 
 /************************************************************************/
 /***				NOTE:				      ***/
@@ -290,7 +291,7 @@ sysinit()
 	//	}
 	//}
 
-	kprintf("\nThe value of pdbr is %d", proctab[NULLPROC].pdbr);
+	//kprintf("\nThe value of pdbr is %d", proctab[NULLPROC].pdbr);
 
 	write_cr3(proctab[NULLPROC].pdbr);
 	set_evec(14, pfintr);

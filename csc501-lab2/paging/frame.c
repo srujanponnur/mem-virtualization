@@ -13,6 +13,7 @@ SYSCALL init_frm()
 	STATWORD ps;
 	disable(ps);
 	int frameIndex;
+	init_list(); //initializing list for page replacment.
 	for (frameIndex = 0; frameIndex < NFRAMES; frameIndex++) {
 		frm_tab[frameIndex].fr_status = FRM_UNMAPPED;
 		frm_tab[frameIndex].fr_pid = BADPID;
@@ -91,5 +92,61 @@ void alloc_pd(unsigned int pd_base) {
 		}
 		pde++;
 	}
+	return;
+}
+
+void init_list() {
+	list_node* head = getmem(sizeof(list_node));
+	head->frame_index = -1;
+	head->next = head;
+	head.prev = head;
+	size = 0;
+}
+
+void insert_into_list(int frame_index) {
+	list_node* last_node = head;
+	while (last_node->next != head) {
+		last_node = last_node->next;
+	}
+	list_node* new_node = getmem(sizeof(list_node));
+	new_node->prev = last_node;
+	new_node->next = last_node->next;
+	new_node->frame_index = frame_index;
+	last_node->next->prev = new_node; // changing the head's prev to the new value
+	last_node->next = new_node;
+	size++; // increasing the size of the list
+}
+
+void remove_from_list(int frame_index) {
+	if (frame_index == -1) {
+		return; //cant remove the head
+	}
+	, * next_node;
+	list_node * temp = head.next;
+	while (temp != head) {
+		if (temp->frame_index == frame_index) {
+			list_node * prev_node = temp->prev;
+			list_node* next_node = temp->next;
+			prev_node->next = next_node;
+			next_node->prev = prev_node;
+			freemem(temp, sizeof(list_node));
+			size--;
+		}
+		else {
+			temp = temp->next;
+		}
+	}
+}
+
+
+void display_list() {
+	STATWORD ps;
+	disable(ps);
+	list_node* temp = head.next;
+	while (temp != head) {
+		kprintf("Frame Index: %d \n", temp->frame_index);
+		temp = temp->next;
+	}
+	restore(ps);
 	return;
 }

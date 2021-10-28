@@ -51,7 +51,7 @@ typedef struct {
   int bs_sem;				/* semaphore mechanism ?	*/
 } bs_map_t;
 
-typedef struct{
+typedef struct {
   int fr_status;			/* MAPPED or UNMAPPED		*/
   int fr_pid;				/* process id using this frame  */
   int fr_vpno;				/* corresponding virtual page no*/
@@ -91,10 +91,23 @@ SYSCALL print_bs(void);
 #define SC 3
 #define AGING 4
 
+typedef struct {
+	int frame_index;
+	list_node* next;
+	list_node* prev;
+} list_node;
+
+extern list_node* head;
+extern int size;
+
 
 #define GLOBALPAGES 4
 #define BACKING_STORE_BASE	0x00800000
 #define BACKING_STORE_UNIT_SIZE 0x00100000
 
+extern void init_list(void);
+extern void insert_into_list(int);
+extern void remove_from_list(int);
+extern void display_list(void);
 extern unsigned int init_pd(int);
 extern void alloc_pd(unsigned int);
