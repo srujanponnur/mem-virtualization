@@ -96,10 +96,10 @@ void alloc_pd(unsigned int pd_base) {
 }
 
 void init_list() {
-	list_node* head = getmem(sizeof(list_node));
+	list_node* head = (list_node *)getmem(sizeof(list_node));
 	head->frame_index = -1;
 	head->next = head;
-	head.prev = head;
+	head->prev = head;
 	size = 0;
 }
 
@@ -108,7 +108,7 @@ void insert_into_list(int frame_index) {
 	while (last_node->next != head) {
 		last_node = last_node->next;
 	}
-	list_node* new_node = getmem(sizeof(list_node));
+	list_node* new_node = (list_node *)getmem(sizeof(list_node));
 	new_node->prev = last_node;
 	new_node->next = last_node->next;
 	new_node->frame_index = frame_index;
@@ -121,7 +121,6 @@ void remove_from_list(int frame_index) {
 	if (frame_index == -1) {
 		return; //cant remove the head
 	}
-	, * next_node;
 	list_node * temp = head.next;
 	while (temp != head) {
 		if (temp->frame_index == frame_index) {
