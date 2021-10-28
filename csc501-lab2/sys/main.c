@@ -37,7 +37,7 @@ void proc1_test1(char* msg, int lck) {
 	for (i = 0; i < 5; i++) {
 		kprintf("0x%08x: %c\n", addr + i * NBPG, *(addr + i * NBPG));
 	}
-
+	display_list();
 	xmunmap(PROC1_VPNO);
 	//print_bs();
 	return;
