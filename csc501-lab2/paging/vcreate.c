@@ -51,7 +51,7 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 		proctab[pid].store = store;
 		proctab[pid].vhpno = 4096;                  
 		proctab[pid].vhpnpages = hsize;
-		proctab[pid].vmemlist->mnext = store * BACKING_STORE_UNIT_SIZE + BACKING_STORE_BASE + ; // storing the next available free chunk, starting from its backing store index
+		proctab[pid].vmemlist->mnext = store * BACKING_STORE_UNIT_SIZE + BACKING_STORE_BASE ; // storing the next available free chunk, starting from its backing store index
 		proctab[pid].vmemlist->mnext->mlen = hsize * NBPG;
 		restore(ps);
 		return pid;
