@@ -128,7 +128,7 @@ void remove_from_list(int frame_index) {
 			list_node* next_node = temp->next;
 			prev_node->next = next_node;
 			next_node->prev = prev_node;
-			freemem(temp, sizeof(list_node));
+			freemem((struct mblock* )temp, sizeof(list_node));
 			size--;
 		}
 		else {
