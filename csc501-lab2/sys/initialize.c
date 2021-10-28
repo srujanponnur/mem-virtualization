@@ -50,7 +50,6 @@ int	console_dev;		/* the console device			*/
 
 /*  added for the demand paging */
 int page_replace_policy = SC;
-alloc_queue fr_rep_queue[NFRAMES]; /* queue for tracking page replacment frames*/
 
 /************************************************************************/
 /***				NOTE:				      ***/
