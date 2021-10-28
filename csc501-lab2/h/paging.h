@@ -91,10 +91,10 @@ SYSCALL print_bs(void);
 #define SC 3
 #define AGING 4
 
-typedef struct {
+typedef struct list_node {
 	int frame_index;
-	list_node* next;
-	list_node* prev;
+	struct list_node* next;
+	struct list_node* prev;
 } list_node;
 
 extern list_node* head;
