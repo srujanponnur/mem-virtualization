@@ -27,14 +27,14 @@ void proc1_test1(char* msg, int lck) {
 	}
 
 	addr = (char*)PROC1_VADDR;
-	for (i = 0; i <6; i++) {
+	for (i = 0; i <26; i++) {
         //kprintf("\n\nThe address being accessed is %d\n",(addr + i * NBPG));
 		*(addr + i * NBPG) = 'A' + i;
 	}
         display_list();
         sleep(6);
 
-	for (i = 0; i < 6; i++) {
+	for (i = 0; i < 26; i++) {
 		kprintf("0x%08x: %c\n", addr + i * NBPG, *(addr + i * NBPG));
 	}
 
