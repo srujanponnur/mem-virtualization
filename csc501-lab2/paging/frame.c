@@ -176,6 +176,7 @@ int pick_frame() {
 	else if (policy == AGING) {
 		return get_frame_using_aging();
 	}
+	return -1;
 }
 
 int  get_frame_using_sc() {
@@ -206,7 +207,7 @@ int  get_frame_using_sc() {
 				// we will be choosing this frame.
 				picked_frame = temp->frame_index;
 				kprintf("\nReaching here, choosing the frame: %d for eviction\n", picked_frame);
-				remove_from_list(temp->frame_index)
+				remove_from_list(temp->frame_index);
 				return picked_frame;
 			}
 			temp = temp->next;
@@ -217,5 +218,7 @@ int  get_frame_using_sc() {
 }
 
 int  get_frame_using_aging() {
+
+	return -1;
 
 }
