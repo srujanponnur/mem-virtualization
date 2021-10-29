@@ -55,17 +55,6 @@ SYSCALL get_frm(int* avail)
 
 }
 
-/*-------------------------------------------------------------------------
- * free_frm - free a frame 
- *-------------------------------------------------------------------------
- */
-SYSCALL free_frm(int i)
-{
-
-  kprintf("To be implemented!\n");
-  return OK;
-}
-
 
 unsigned int init_pd(int pid) {
 
@@ -177,6 +166,71 @@ int pick_frame() {
 		return get_frame_using_aging();
 	}
 	return -1;
+}
+
+
+/*-------------------------------------------------------------------------
+ * free_frm - free a frame
+ *-------------------------------------------------------------------------
+ */
+SYSCALL free_frm(int i)
+{
+	STATWORD ps;
+	disable(ps);
+	int access_bit, frame_index, pid, status, type, ret_val, pageth, store, table_index;
+	unsigned int pdbr, address;
+	virt_addr_t* virtual_address;
+	pd_t* pde;
+	pt_t* pte;
+	kprintf("Inside free frame\n");
+	status = frm_tab[i].fr_status;
+	pid = frm_tab[i].fr_pid;
+	pdbr = proctab[pid].pdbr;
+	type = frm_tab[i].fr_type;
+	address = frm_tab[frame_index].fr_vpno * NBPG;
+	virtual_address = (virt_addr_t*)&address;
+	pde = (pd_t*)(pdbr + (sizeof(pd_t) * virtual_address->pd_offset));
+	pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
+	if (status) {
+		if (type == FR_PAGE) {
+			ret_val = bsm_lookup(pid, address, &store, &pageth);
+			if (ret_val == SYSERR) {
+				kprintf("Faulted Address: %d\n",address);
+				return SYSERR;
+			}
+			else {
+				char* wr_strt_addr = (char*)((i + FRAME0) * NBPG);
+				write_bs(wr_strt_addr, store, pageth);
+				frm_tab[i].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
+				frm_tab[i].fr_pid = BADPID;
+				frm_tab[i].fr_vpno = -1;
+				frm_tab[i].fr_refcnt = 0;
+				frm_tab[i].fr_type = -1;
+				frm_tab[i].fr_dirty = 0;
+
+				pte->pt_pres = 0; //setting the page table entry bit to 0
+				table_index = pde->pd_base - FRAME0;
+				kprintf("The table frame index of the evicted page is", table_index);
+				if (frm_tab[table_index] == FR_TBL) {
+					if (frm_tab[table_index].fr_refcnt > 0) {
+						frm_tab[table_index].fr_refcnt--;
+						if (frm_tab[table_index] == 0) { // remove the frame of the corresponding page directory entry
+							frm_tab[table_index].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
+							frm_tab[table_index].fr_pid = BADPID;
+							frm_tab[table_index].fr_vpno = -1;
+							frm_tab[table_index].fr_refcnt = 0;
+							frm_tab[table_index].fr_type = -1;
+							frm_tab[table_index].fr_dirty = 0;
+							pde->pd_pres = 0;
+						}
+					}
+				}
+				write_cr3(pdbr);
+			}
+		}
+	}
+	restore(ps);
+	return OK;
 }
 
 int  get_frame_using_sc() {
