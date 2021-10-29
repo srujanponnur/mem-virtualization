@@ -202,10 +202,10 @@ SYSCALL free_frm(int i)
 				
 				table_index = pde->pd_base - FRAME0;
 				kprintf("The table frame index of the evicted page is", table_index);
-				if (frm_tab[table_index] == FR_TBL) {
+				if (frm_tab[table_index].fr_type == FR_TBL) {
 					if (frm_tab[table_index].fr_refcnt > 0) {
 						frm_tab[table_index].fr_refcnt--;
-						if (frm_tab[table_index] == 0) { // remove the frame of the corresponding page directory entry
+						if (frm_tab[table_index].fr_refcnt == 0) { // remove the frame of the corresponding page directory entry
 							frm_tab[table_index].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
 							frm_tab[table_index].fr_pid = BADPID;
 							frm_tab[table_index].fr_vpno = -1;
