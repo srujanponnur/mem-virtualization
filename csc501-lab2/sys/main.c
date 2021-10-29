@@ -27,21 +27,22 @@ void proc1_test1(char* msg, int lck) {
 	}
 
 	addr = (char*)PROC1_VADDR;
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i <6; i++) {
                 kprintf("\n\nThe address being accessed is %d\n",(addr + i * NBPG));
 		*(addr + i * NBPG) = 'A' + i;
+                kprintf("0x%08x: %c\n", addr + i * NBPG, *(addr + i * NBPG));
 	}
-
+        display_list();
         sleep(6);
 
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < 6; i++) {
 		kprintf("0x%08x: %c\n", addr + i * NBPG, *(addr + i * NBPG));
 	}
 
-	display_list();
-	remove_from_list(10);
-	insert_into_list(10);
-	display_list();
+	//display_list();
+	//remove_from_list(10);
+	//insert_into_list(10);
+	//display_list();
 	xmunmap(PROC1_VPNO);
 	//print_bs();
 	return;

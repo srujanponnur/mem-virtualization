@@ -17,15 +17,16 @@ SYSCALL pfint()
 	disable(ps);
 
 	unsigned long fault_addr, pdb_val, vp_num;
-	int store, page_index, ret_val, pd_index, pt_index, free_frame_index, virtual_pageno;
+	int store, page_index, ret_val, pd_index, pt_index, free_frame_index, virtual_pageno, bs_page;
 
-    //kprintf("Reaching page fault handler \n");
+        //kprintf("Reaching page fault handler \n");
 	fault_addr = read_cr2(); //read the faulted address
 	virtual_pageno = fault_addr / NBPG;
-      //kprintf("The faulted address is %d\n", fault_addr);
+        //kprintf("The faulted address is %d\n", fault_addr);
 	pdb_val = proctab[currpid].pdbr;
-	ret_val = bsm_lookup(currpid, fault_addr, &store, &page_index);
-      //kprintf("looked up store and page_inded values are %d and %d and the return value is: %d\n",store, page_index, ret_val);
+        //kprintf("The address being looked up is %d\n", fault_addr);
+	ret_val = bsm_lookup(currpid, fault_addr, &store, &bs_page);
+        //kprintf("looked up store and page_inded values are %d and %d and the return value is: %d\n",store, page_index, ret_val);
 	if (ret_val == SYSERR) {
 		kprintf("Illegal Address, killing the process");
 		kill(currpid);
@@ -43,12 +44,12 @@ SYSCALL pfint()
 	pd_t* pde = pdb_val + (sizeof(pd_t) * pd_index);  //pth entry of the page directory
 	if (!pde->pd_pres) {
 		ret_val = get_frm(&free_frame_index);
-          //kprintf("The frame fetched for table is: %d\n", free_frame_index);
+               // kprintf("The frame fetched for table is: %d\n", free_frame_index);
 		if (ret_val == SYSERR) {
 			restore(ps);
 			return SYSERR;
 		}
-
+                //kprintf("Table index created is %d\n", free_frame_index);
 		frm_tab[free_frame_index].fr_status = FRM_MAPPED;  // adding a frame entry
 		frm_tab[free_frame_index].fr_pid = currpid;
 		frm_tab[free_frame_index].fr_dirty = 0;
@@ -85,12 +86,12 @@ SYSCALL pfint()
 		pde->pd_base = FRAME0 + free_frame_index;
 
 	}
-
 	pt_t* pte = (pt_t *)((pde->pd_base * NBPG) + (pt_index * sizeof(pt_t)));
 
 	if (!pte->pt_pres) {
 
 		ret_val = get_frm(&free_frame_index);
+                //kprintf("\n----Reaching here and getting the free frame index : %d---- \n",free_frame_index);
 		insert_into_list(free_frame_index);
 		//kprintf("The frame fetched for page is: %d\n", free_frame_index); 
 		if (ret_val == SYSERR) {
@@ -105,16 +106,18 @@ SYSCALL pfint()
 		int table_frame_index = pde->pd_base - FRAME0;
 		//kprintf(" Table frame Index is: %d ", table_frame_index);
 		frm_tab[table_frame_index].fr_refcnt++; // update reference count of the page table
+                //kprintf("Incrementing reference count for %d\n", table_frame_index);
 		frm_tab[free_frame_index].fr_vpno = virtual_pageno;
-
+                //kprintf("The frame index: %d and virtual page number is %d\n", free_frame_index, virtual_pageno);
 		char* start_address = (char*)((FRAME0 + free_frame_index) * NBPG); // starting address of the frame
-		read_bs(start_address, store, page_index); // writing from store to the free frame 
+		read_bs(start_address, store, bs_page); // writing from store to the free frame 
 
 		pte->pt_pres = 1;
 		pte->pt_write = 1;
 		pte->pt_base = FRAME0 + free_frame_index; //pointing page table entry to point to free frame
 
 	}
+        //display_list();
 	restore(ps);
 	return OK;
 }

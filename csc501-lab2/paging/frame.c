@@ -35,7 +35,7 @@ SYSCALL get_frm(int* avail)
 	STATWORD ps;
 	disable(ps);
 	int frameIndex, evt_frame;
-	for (frameIndex = 0; frameIndex < 12; frameIndex++) {
+	for (frameIndex = 0; frameIndex < 10; frameIndex++) {
 	        if (frm_tab[frameIndex].fr_status == FRM_UNMAPPED) {
 			*avail = frameIndex;
 			restore(ps);
@@ -50,8 +50,9 @@ SYSCALL get_frm(int* avail)
 		return SYSERR;
 	}
 	free_frm(evt_frame);
+        *avail = evt_frame;
 	restore(ps);
-	return evt_frame;
+	return OK;
 
 }
 
@@ -144,6 +145,7 @@ void display_list() {
 	STATWORD ps;
 	disable(ps);
 	list_node* temp = head->next;
+        kprintf("\n----printing---\n");
 	while (temp != head) {
 		kprintf("Frame Index: %d \n", temp->frame_index);
 		temp = temp->next;
@@ -156,10 +158,10 @@ void display_list() {
 int pick_frame() {
 	int frame_index;
 	int policy = grpolicy(); // we need page replacement;
-	kprintf("\nInside pick_frame\n");
+	//kprintf("\nInside pick_frame\n");
 	if (policy == SC) {
 		frame_index = get_frame_using_sc();
-		kprintf("The index selected for eviction is :%d", frame_index);
+		//kprintf("The index selected for eviction is :%d", frame_index);
 		return frame_index;
 	}
 	else if (policy == AGING) {
@@ -182,17 +184,18 @@ SYSCALL free_frm(int i)
 	virt_addr_t* virtual_address;
 	pd_t* pde;
 	pt_t* pte;
-	kprintf("Inside free frame\n");
+	//kprintf("Inside free frame\n");
 	status = frm_tab[i].fr_status;
 	pid = frm_tab[i].fr_pid;
 	pdbr = proctab[pid].pdbr;
 	type = frm_tab[i].fr_type;
-	address = frm_tab[frame_index].fr_vpno * NBPG;
+	address = frm_tab[i].fr_vpno * NBPG;
 	virtual_address = (virt_addr_t*)&address;
 	pde = (pd_t*)(pdbr + (sizeof(pd_t) * virtual_address->pd_offset));
 	pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
 	if (status) {
 		if (type == FR_PAGE) {
+                       // kprintf("The address being looked up is: %d\n ", address);
 			ret_val = bsm_lookup(pid, address, &store, &pageth);
 			if (ret_val == SYSERR) {
 				kprintf("Faulted Address: %d\n",address);
@@ -201,11 +204,15 @@ SYSCALL free_frm(int i)
 			else {
 				
 				table_index = pde->pd_base - FRAME0;
-				kprintf("The table frame index of the evicted page is", table_index);
+				//kprintf("The table frame index of the evicted page is %d\n", table_index);
 				if (frm_tab[table_index].fr_type == FR_TBL) {
+                                        //kprintf("Coming inside page table thingy\n");
 					if (frm_tab[table_index].fr_refcnt > 0) {
+                                                //kprintf("Reference count is greater than one\n");
+                                                //kprintf("%d", frm_tab[table_index].fr_refcnt);
 						frm_tab[table_index].fr_refcnt--;
 						if (frm_tab[table_index].fr_refcnt == 0) { // remove the frame of the corresponding page directory entry
+							//kprintf("Invalidating the page table frame\n");
 							frm_tab[table_index].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
 							frm_tab[table_index].fr_pid = BADPID;
 							frm_tab[table_index].fr_vpno = -1;
@@ -217,7 +224,10 @@ SYSCALL free_frm(int i)
 					}
 				}
 				char* wr_strt_addr = (char*)((i + FRAME0) * NBPG);
-				write_bs(wr_strt_addr, store, pageth);
+                                if(pte->pt_dirty) {
+                                    //kprintf("writing out frame_index %d, in the store %d and page %d\n",i,store,pageth);
+			 	    write_bs(wr_strt_addr, store, pageth);
+                                }
 				frm_tab[i].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
 				frm_tab[i].fr_pid = BADPID;
 				frm_tab[i].fr_vpno = -1;
@@ -225,7 +235,7 @@ SYSCALL free_frm(int i)
 				frm_tab[i].fr_type = -1;
 				frm_tab[i].fr_dirty = 0;
 				pte->pt_pres = 0; // setting the page table entry bit to 0
-				write_cr3(pdbr); // resetting the TLB cache by resetting the page directory 
+				write_cr3(pdbr); // resetting the TLB cache by resetting the page directory
 			}
 		}
 	}
@@ -239,13 +249,13 @@ int  get_frame_using_sc() {
 	virt_addr_t* virtual_address;
 	pd_t* pde;
 	pt_t* pte;
-	kprintf("\nInside SC Eviction\n");
+	//kprintf("\nInside SC Eviction\n");
 	while (tries > 0) {
 		list_node* temp = head->next;
 		while (temp != head) {
 
 			frame_index = temp->frame_index;
-			kprintf("The current frame index is: %d\n", frame_index);
+			//kprintf("The current frame index is: %d\n", frame_index);
 			pid = frm_tab[frame_index].fr_pid;
 			address = frm_tab[frame_index].fr_vpno * NBPG;
 			virtual_address = (virt_addr_t*)&address;
@@ -254,13 +264,13 @@ int  get_frame_using_sc() {
 			pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
 
 			if (pte->pt_acc) {
-				kprintf("The access bit for the frame: %d is set and being cleared", frame_index);
+			//	kprintf("The access bit for the frame: %d is set and being cleared", frame_index);
 				pte->pt_acc = 0;
 			}
 			else {
 				// we will be choosing this frame.
 				picked_frame = temp->frame_index;
-				kprintf("\nReaching here, choosing the frame: %d for eviction\n", picked_frame);
+			//	kprintf("\nReaching here, choosing the frame: %d for eviction\n", picked_frame);
 				remove_from_list(temp->frame_index);
 				return picked_frame;
 			}
