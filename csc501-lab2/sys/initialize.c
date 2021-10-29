@@ -293,7 +293,7 @@ sysinit()
 
 	//kprintf("\nThe value of pdbr is %d", proctab[NULLPROC].pdbr);
 
-	write_cr3(proctab[NULLPROC].pdbr);
+	write_cr3(proctab[NULLPROC].pdbr); // setting the pdbr register to null proc's page directory
 	set_evec(14, pfintr);
     enable_paging();
 	return(OK);

@@ -50,7 +50,7 @@ SYSCALL get_frm(int* avail)
 		return SYSERR;
 	}
 	free_frm(evt_frame);
-        *avail = evt_frame;
+    *avail = evt_frame;
 	restore(ps);
 	return OK;
 
@@ -195,7 +195,7 @@ SYSCALL free_frm(int i)
 	pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
 	if (status) {
 		if (type == FR_PAGE) {
-                       // kprintf("The address being looked up is: %d\n ", address);
+            // kprintf("The address being looked up is: %d\n ", address);
 			ret_val = bsm_lookup(pid, address, &store, &pageth);
 			if (ret_val == SYSERR) {
 				kprintf("Faulted Address: %d\n",address);
@@ -206,14 +206,14 @@ SYSCALL free_frm(int i)
 				table_index = pde->pd_base - FRAME0;
 				//kprintf("The table frame index of the evicted page is %d\n", table_index);
 				if (frm_tab[table_index].fr_type == FR_TBL) {
-                                        //kprintf("Coming inside page table thingy\n");
+                    //kprintf("Coming inside page table thingy\n");
 					if (frm_tab[table_index].fr_refcnt > 0) {
-                                                //kprintf("Reference count is greater than one\n");
-                                                //kprintf("%d", frm_tab[table_index].fr_refcnt);
+                        //kprintf("Reference count is greater than one\n");
+                        //kprintf("%d", frm_tab[table_index].fr_refcnt);
 						frm_tab[table_index].fr_refcnt--;
 						if (frm_tab[table_index].fr_refcnt == 0) { // remove the frame of the corresponding page directory entry
 							//kprintf("Invalidating the page table frame\n");
-							frm_tab[table_index].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
+							frm_tab[table_index].fr_status = FRM_UNMAPPED;  //removing the entry of table_index from frm_tab
 							frm_tab[table_index].fr_pid = BADPID;
 							frm_tab[table_index].fr_vpno = -1;
 							frm_tab[table_index].fr_refcnt = 0;
@@ -224,10 +224,8 @@ SYSCALL free_frm(int i)
 					}
 				}
 				char* wr_strt_addr = (char*)((i + FRAME0) * NBPG);
-                                if(pte->pt_dirty) {
-                                    //kprintf("writing out frame_index %d, in the store %d and page %d\n",i,store,pageth);
-			 	    write_bs(wr_strt_addr, store, pageth);
-                                }
+                //kprintf("writing out frame_index %d, in the store %d and page %d\n",i,store,pageth);
+			    write_bs(wr_strt_addr, store, pageth);
 				frm_tab[i].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
 				frm_tab[i].fr_pid = BADPID;
 				frm_tab[i].fr_vpno = -1;
