@@ -91,6 +91,9 @@ SYSCALL print_bs(void);
 #define SC 3
 #define AGING 4
 
+SYSCALL grpolicy(); // To fetch the page replacement
+SYSCALL srpolicy(int); // sets page replacement to either SC or AGING
+
 typedef struct list_node {
 	int frame_index;
 	struct list_node* next;
@@ -111,3 +114,6 @@ extern void remove_from_list(int);
 extern void display_list(void);
 extern unsigned int init_pd(int);
 extern void alloc_pd(unsigned int);
+extern int pick_frame(void);
+extern int get_frame_using_sc(void);
+extern int get_frame_using_aging(void);

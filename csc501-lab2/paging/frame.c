@@ -32,14 +32,27 @@ SYSCALL init_frm()
  */
 SYSCALL get_frm(int* avail)
 {
-	int frameIndex;
+	STATWORD ps;
+	disable(ps);
+	int frameIndex, evt_frame;
 	for (frameIndex = 0; frameIndex < NFRAMES; frameIndex++) {
 	        if (frm_tab[frameIndex].fr_status == FRM_UNMAPPED) {
 			*avail = frameIndex;
+			restore(ps);
 			return OK;
 		}
 	}
-    return OK;
+	// currently no frame is available have to pick a frame
+	evt_frame = pick_frame(); // have to free this frame before returning
+	if (evt_frame == -1) {
+		kprintf("Unable to find the free frame");
+		restore(ps);
+		return SYSERR;
+	}
+	free_frm(evt_frame);
+	restore(ps);
+	return evt_frame;
+
 }
 
 /*-------------------------------------------------------------------------
@@ -148,4 +161,61 @@ void display_list() {
 	}
 	restore(ps);
 	return;
+}
+
+
+int pick_frame() {
+	int frame_index;
+	int policy = grpolicy(); // we need page replacement;
+	kprintf("\nInside pick_frame\n");
+	if (policy == SC) {
+		frame_index = get_frame_using_sc();
+		kprintf("The index selected for eviction is :%d", frame_index);
+		return frame_index;
+	}
+	else if (policy == AGING) {
+		return get_frame_using_aging();
+	}
+}
+
+int  get_frame_using_sc() {
+	int access_bit, frame_index,pid, picked_frame = -1, tries = 2;
+	unsigned int pdbr, address;
+	virt_addr_t* virtual_address;
+	pd_t* pde;
+	pt_t* pte;
+	kprintf("\nInside SC Eviction\n");
+	while (tries > 0) {
+		list_node* temp = head->next;
+		while (temp != head) {
+
+			frame_index = temp->frame_index;
+			kprintf("The current frame index is: %d\n", frame_index);
+			pid = frm_tab[frame_index].fr_pid;
+			address = frm_tab[frame_index].fr_vpno * NBPG;
+			virtual_address = (virt_addr_t*)&address;
+			pdbr = proctab[pid].pdbr;
+			pde = (pd_t*)(pdbr + (sizeof(pd_t) * virtual_address->pd_offset));
+			pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
+
+			if (pte->pt_acc) {
+				kprintf("The access bit for the frame: %d is set and being cleared", frame_index);
+				pte->pt_acc = 0;
+			}
+			else {
+				// we will be choosing this frame.
+				picked_frame = temp->frame_index;
+				kprintf("\nReaching here, choosing the frame: %d for eviction\n", picked_frame);
+				remove_from_list(temp->frame_index)
+				return picked_frame;
+			}
+			temp = temp->next;
+		}
+		tries--;
+	}
+	return -1;
+}
+
+int  get_frame_using_aging() {
+
 }
