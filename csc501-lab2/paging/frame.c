@@ -303,7 +303,7 @@ int  get_frame_using_aging() {
 		pde = (pd_t*)(pdbr + (sizeof(pd_t) * virtual_address->pd_offset));
 		pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
 
-		kprintf("The current Age of frame Index: %d is %d\n", frame_index, age);
+		kprintf("The current Age of frame Index: %d is %d\n", frame_index, frm_tab[frame_index].fr_age);
 		frm_tab[frame_index].fr_age  = frm_tab[frame_index].fr_age >> 1; //decreasing all pages fr_age's by half
 
 		if (pte->pt_acc) {
