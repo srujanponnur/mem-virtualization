@@ -306,7 +306,7 @@ int  get_frame_using_aging() {
 		if (pte->pt_acc) {
 			pte->pt_acc = 0; // clearing the access bit
 			frm_tab[frame_index].fr_age += 128;
-			if (frm_tab[frame_index] > 256) { //maximum fr_age is 255
+			if (frm_tab[frame_index].fr_age > 256) { //maximum fr_age is 255
 				frm_tab[frame_index].fr_age = 255;
 			}
 		}
