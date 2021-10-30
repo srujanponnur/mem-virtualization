@@ -36,7 +36,7 @@ SYSCALL get_frm(int* avail)
 	STATWORD ps;
 	disable(ps);
 	int frameIndex, evt_frame;
-	for (frameIndex = 0; frameIndex < NFRAMES; frameIndex++) {
+	for (frameIndex = 0; frameIndex < 11; frameIndex++) {
 	        if (frm_tab[frameIndex].fr_status == FRM_UNMAPPED) {
 			*avail = frameIndex;
 			restore(ps);
