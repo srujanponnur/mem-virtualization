@@ -16,6 +16,7 @@ SYSCALL srpolicy(int policy)
 
   if (policy == SC || policy == AGING) {
 	  page_replace_policy = policy;
+	  enable_debugging = 1;
   }
   else {
 	  return SYSERR;

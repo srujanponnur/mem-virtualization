@@ -58,6 +58,7 @@ typedef struct {
   int fr_refcnt;			/* reference count		*/
   int fr_type;				/* FR_DIR, FR_TBL, FR_PAGE	*/
   int fr_dirty;
+  int fr_age;  /* used in AGING Replacement*/
 } fr_map_t;
 
 extern bs_map_t bsm_tab[];
@@ -102,6 +103,7 @@ typedef struct list_node {
 
 extern list_node* head;
 extern int size;
+extern int enable_debugging;
 
 
 #define GLOBALPAGES 4

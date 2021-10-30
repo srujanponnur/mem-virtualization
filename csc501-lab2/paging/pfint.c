@@ -56,7 +56,6 @@ SYSCALL pfint()
 		frm_tab[free_frame_index].fr_type = FR_TBL;
 		frm_tab[free_frame_index].fr_pid = currpid;
 		frm_tab[free_frame_index].fr_vpno = 0;
-
 		pt_t *pte = (pt_t*)((FRAME0 + free_frame_index) * NBPG);
 		int table_index;
 		for (table_index = 0; table_index < 1024; table_index++) { // need to place this as common helper function

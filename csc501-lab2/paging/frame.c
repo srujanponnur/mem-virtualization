@@ -21,6 +21,7 @@ SYSCALL init_frm()
 		frm_tab[frameIndex].fr_refcnt = 0;
 		frm_tab[frameIndex].fr_type = -1;
 		frm_tab[frameIndex].fr_dirty = 0;
+		frm_tab[frameIndex].fr_age = 0;
 	}
 	restore(ps);
 	return OK;
@@ -44,6 +45,9 @@ SYSCALL get_frm(int* avail)
 	}
 	// currently no frame is available have to pick a frame
 	evt_frame = pick_frame(); // have to free this frame before returning
+	if (enable_debugging) {
+		kprintf("Frame Evicted is: %d \n", evt_frame);
+	}
 	if (evt_frame == -1) {
 		kprintf("Unable to find the free frame");
 		restore(ps);
@@ -219,6 +223,7 @@ SYSCALL free_frm(int i)
 							frm_tab[table_index].fr_refcnt = 0;
 							frm_tab[table_index].fr_type = -1;
 							frm_tab[table_index].fr_dirty = 0;
+							frm_tab[table_index].fr_age = 0;
 							pde->pd_pres = 0;
 						}
 					}
@@ -232,6 +237,7 @@ SYSCALL free_frm(int i)
 				frm_tab[i].fr_refcnt = 0;
 				frm_tab[i].fr_type = -1;
 				frm_tab[i].fr_dirty = 0;
+				frm_tab[i].fr_age = 0;
 				pte->pt_pres = 0; // setting the page table entry bit to 0
 				write_cr3(pdbr); // resetting the TLB cache by resetting the page directory
 			}
@@ -280,7 +286,36 @@ int  get_frame_using_sc() {
 }
 
 int  get_frame_using_aging() {
+	int access_bit, frame_index, pid, picked_frame = -1, current_min = 999999999;
+	unsigned int pdbr, address;
+	virt_addr_t* virtual_address;
+	pd_t* pde;
+	pt_t* pte;
+	list_node* temp = head->next;
+	kprintf("In Aging\n");
+	while (temp != head) {
+		pid = frm_tab[frame_index].fr_pid;
+		address = frm_tab[frame_index].fr_vpno * NBPG;
+		virtual_address = (virt_addr_t*)&address;
+		pdbr = proctab[pid].pdbr;
+		pde = (pd_t*)(pdbr + (sizeof(pd_t) * virtual_address->pd_offset));
+		pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
 
-	return -1;
+		frm_tab[frame_index].fr_age  = frm_tab[frame_index].fr_age >> 1; //decreasing all pages fr_age's by half
 
+		if (pte->pt_acc) {
+			pte->pt_acc = 0; // clearing the access bit
+			frm_tab[frame_index].fr_age += 128;
+			if (frm_tab[frame_index] > 256) { //maximum fr_age is 255
+				frm_tab[frame_index].fr_age = 255;
+			}
+		}
+		if (frm_tab[frame_index].fr_age < current_min) {   //choosing the youngest page to replace
+			picked_frame = frame_index;
+			current_min = frm_tab[frame_index].fr_age;
+		}
+		temp = temp->next;
+	}
+	kprintf("The minimum fr_age within the frame tab is %d with index: %d\n ", current_min, picked_frame);
+	return picked_frame;
 }
