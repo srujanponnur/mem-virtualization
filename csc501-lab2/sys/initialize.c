@@ -51,7 +51,7 @@ int	console_dev;		/* the console device			*/
 /*  added for the demand paging */
 int page_replace_policy = SC;
 int size = 0;
-int enable_debugging = 0;
+int enable_debugging = 1;
 list_node* head;
 /************************************************************************/
 /***				NOTE:				      ***/
