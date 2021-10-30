@@ -294,6 +294,8 @@ int  get_frame_using_aging() {
 	list_node* temp = head->next;
 	kprintf("In Aging\n");
 	while (temp != head) {
+
+		frame_index = temp->frame_index;
 		pid = frm_tab[frame_index].fr_pid;
 		address = frm_tab[frame_index].fr_vpno * NBPG;
 		virtual_address = (virt_addr_t*)&address;
@@ -301,6 +303,7 @@ int  get_frame_using_aging() {
 		pde = (pd_t*)(pdbr + (sizeof(pd_t) * virtual_address->pd_offset));
 		pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
 
+		kprintf("The current Age of frame Index: %d is %d\n", frame_index, age);
 		frm_tab[frame_index].fr_age  = frm_tab[frame_index].fr_age >> 1; //decreasing all pages fr_age's by half
 
 		if (pte->pt_acc) {
