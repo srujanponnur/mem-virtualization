@@ -249,7 +249,6 @@ sysinit()
 		frm_tab[free_frame_no].fr_dirty = 0;
 		frm_tab[free_frame_no].fr_vpno = 0;
 		frm_tab[free_frame_no].fr_refcnt = 0;
-		frm_tab[free_frame_no].age = 0;
 		frame_index++;
 	}
         
@@ -262,7 +261,6 @@ sysinit()
 	frm_tab[free_frame_no].fr_dirty = 0;
 	frm_tab[free_frame_no].fr_vpno = 0;
 	frm_tab[free_frame_no].fr_refcnt = 4;
-	frm_tab[free_frame_no].age = 0;
 	int dir_index;
 	for (dir_index = 0; dir_index < 1024; dir_index++) {
 		pde->pd_pres = 0;
