@@ -319,6 +319,7 @@ int  get_frame_using_aging() {
 		}
 		temp = temp->next;
 	}
+	remove_from_list(picked_frame); //remove from the list.
 	kprintf("The minimum fr_age within the frame tab is %d with index: %d\n ", current_min, picked_frame);
 	return picked_frame;
 }
