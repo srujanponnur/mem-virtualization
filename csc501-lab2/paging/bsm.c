@@ -149,13 +149,6 @@ SYSCALL bsm_unmap(int pid, int vpno, int flag)
 		frameIndex++;
 	}
 
-	storeIndex = proctab[pid].store;
-	bsm_tab[storeIndex].bs_pid = BADPID;
-	bsm_tab[storeIndex].bs_status = BSM_UNMAPPED;
-	bsm_tab[storeIndex].bs_npages = 0;
-	bsm_tab[storeIndex].bs_vpno = -1;
-	bsm_tab[storeIndex].bs_sem = -1;
-
 	restore(ps);
 	return OK;
 }

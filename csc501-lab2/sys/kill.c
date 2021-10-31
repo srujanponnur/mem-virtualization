@@ -29,20 +29,34 @@ SYSCALL kill(int pid)
 	for (frame_index = 0; frame_index < NFRAMES; frame_index++) {
 		if (frm_tab[frame_index].fr_status == FRM_MAPPED && frm_tab[frame_index].fr_pid == pid) {
 			if (frm_tab[frame_index].fr_type == FR_PAGE) {
-				kprintf("clearing frame Index: %d\n", frame_index);
+				//kprintf("clearing frame Index: %d\n", frame_index);
 				remove_from_list(frame_index);
-				free_frm(frame_index);
+				frm_tab[frame_index].fr_status = FRM_UNMAPPED;
+				//free_frm(frame_index);
 			}
 		}
 	}
 
-	int store = proctab[pid].store;
-	release_bs(store); //clearing the store ID
+	kprintf("The pid of the process is :%d\n", pid);
+	int store;
+	for (storeIndex = 0; storeIndex < 8; storeIndex++) {
+		if (bsm_tab[store].bs_status == BSM_MAPPED && bsm_tab[store].bs_pid == pid) {
+			bsm_tab[store].bs_pid = BADPID; // -1
+			bsm_tab[store].bs_status = BSM_UNMAPPED;
+			bsm_tab[store].bs_vpno = -1;
+			bsm_tab[store].bs_npages = 0;
+			bsm_tab[store].bs_sem = -1;
+			bsm_tab[store].bs_private_heap = 0;
+		}
+	}
+
+	//int store = proctab[pid].store;
+	//release_bs(store); //clearing the store ID
 
 
 	pdbr = proctab[pid].pdbr;
 	frame_index = (pdbr / NBPG) - FRAME0;
-	kprintf("Clearing the page directory of the pid: %d at frame index: %d", pid, frame_index);
+	//kprintf("Clearing the page directory of the pid: %d at frame index: %d", pid, frame_index);
 	frm_tab[frame_index].fr_status = FRM_UNMAPPED;
 	frm_tab[frame_index].fr_pid = BADPID;
 	frm_tab[frame_index].fr_vpno = -1;
