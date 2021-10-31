@@ -39,7 +39,7 @@ SYSCALL kill(int pid)
 
 	kprintf("The pid of the process is :%d\n", pid);
 	int store;
-	for (storeIndex = 0; storeIndex < 8; storeIndex++) {
+	for (store = 0; store < 8; store++) {
 		if (bsm_tab[store].bs_status == BSM_MAPPED && bsm_tab[store].bs_pid == pid) {
 			bsm_tab[store].bs_pid = BADPID; // -1
 			bsm_tab[store].bs_status = BSM_UNMAPPED;
