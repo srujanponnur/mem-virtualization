@@ -18,7 +18,6 @@ void proc1_test1(char* msg, int lck) {
 	int i,ret;
 
 	ret = get_bs(TEST1_BS, 100);
-	kprintf("The return value is %d\n", ret);
 
 	if (xmmap(PROC1_VPNO, TEST1_BS, 100) == SYSERR) {
 		kprintf("xmmap call failed\n");
