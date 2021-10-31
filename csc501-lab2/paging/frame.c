@@ -198,13 +198,28 @@ SYSCALL free_frm(int i)
 	address = frm_tab[i].fr_vpno * NBPG;
 	virtual_address = (virt_addr_t*)&address;
 	pde = (pd_t*)(pdbr + (sizeof(pd_t) * virtual_address->pd_offset));
-	pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
+	//pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
 	if (status) {
 		if (type == FR_PAGE) {
             // kprintf("The address being looked up is: %d\n ", address);
-			ret_val = bsm_lookup(pid, address, &store, &pageth);
-			if (ret_val == SYSERR) {
-				kprintf("Faulted Address: %d, just clearing the frame\n",address);
+			//ret_val = bsm_lookup(pid, address, &store, &pageth);
+			//if (ret_val == SYSERR) {
+				//kprintf("Faulted Address: %d, just clearing the frame\n",address);
+				//frm_tab[i].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
+				//frm_tab[i].fr_pid = BADPID;
+				//frm_tab[i].fr_vpno = -1;
+				//frm_tab[i].fr_refcnt = 0;
+				//frm_tab[i].fr_type = -1;
+				//frm_tab[i].fr_dirty = 0;
+				//frm_tab[i].fr_age = 0;
+				//return SYSERR;
+			//}
+			//else {
+				//char* wr_strt_addr = (char*)((i + FRAME0) * NBPG);
+				////kprintf("writing out frame_index %d, in the store %d and page %d\n",i,store,pageth);
+				//if (pte->pt_dirty) {
+				//	write_bs(wr_strt_addr, store, pageth);
+				//}
 				frm_tab[i].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
 				frm_tab[i].fr_pid = BADPID;
 				frm_tab[i].fr_vpno = -1;
@@ -212,22 +227,7 @@ SYSCALL free_frm(int i)
 				frm_tab[i].fr_type = -1;
 				frm_tab[i].fr_dirty = 0;
 				frm_tab[i].fr_age = 0;
-				return SYSERR;
-			}
-			else {
-				char* wr_strt_addr = (char*)((i + FRAME0) * NBPG);
-				//kprintf("writing out frame_index %d, in the store %d and page %d\n",i,store,pageth);
-				if (pte->pt_dirty) {
-					write_bs(wr_strt_addr, store, pageth);
-				}
-				frm_tab[i].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
-				frm_tab[i].fr_pid = BADPID;
-				frm_tab[i].fr_vpno = -1;
-				frm_tab[i].fr_refcnt = 0;
-				frm_tab[i].fr_type = -1;
-				frm_tab[i].fr_dirty = 0;
-				frm_tab[i].fr_age = 0;
-				pte->pt_pres = 0; // setting the page table entry bit to 0
+				//pte->pt_pres = 0; // setting the page table entry bit to 0
 				//write_cr3(pdbr); // resetting the TLB cache by resetting the page directory
 
 
@@ -248,12 +248,12 @@ SYSCALL free_frm(int i)
 							frm_tab[table_index].fr_type = -1;
 							frm_tab[table_index].fr_dirty = 0;
 							frm_tab[table_index].fr_age = 0;
-							pde->pd_pres = 0;
+							//pde->pd_pres = 0;
 						}
 					}
 				}
 				
-			}
+			//}
 		}
 	}
 	restore(ps);
