@@ -26,7 +26,7 @@ void proc1_test1(char* msg, int lck) {
 	}
 
 	addr = (char*)PROC1_VADDR;
-	for (i = 0; i <26; i++) {
+	for (i = 0; i < 26; i++) {
         //kprintf("\n\nThe address being accessed is %d\n",(addr + i * NBPG));
 		*(addr + i * NBPG) = 'A' + i;
 	}
@@ -134,7 +134,7 @@ int main()
 	sleep(10);
 	display_list();
 	
-	/*kprintf("\n2: vgetmem/vfreemem\n");
+	kprintf("\n2: vgetmem/vfreemem\n");
 	pid1 = vcreate(proc1_test2, 2000, 100, 20, "proc1_test2", 0, NULL);
 	kprintf("pid %d has private heap\n", pid1);
 	resume(pid1);
@@ -152,7 +152,7 @@ int main()
 
 	pid2 = create(proc1_test5, 2000, 20, "proc1_test5", 0, NULL);
 	resume(pid2);
-	sleep(10);*/
+	sleep(10);
 
     shutdown();
 }
