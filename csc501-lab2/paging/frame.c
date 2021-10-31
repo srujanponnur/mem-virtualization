@@ -215,7 +215,22 @@ SYSCALL free_frm(int i)
 				return SYSERR;
 			}
 			else {
-				
+				char* wr_strt_addr = (char*)((i + FRAME0) * NBPG);
+				//kprintf("writing out frame_index %d, in the store %d and page %d\n",i,store,pageth);
+				if (pte->pt_dirty) {
+					write_bs(wr_strt_addr, store, pageth);
+				}
+				frm_tab[i].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
+				frm_tab[i].fr_pid = BADPID;
+				frm_tab[i].fr_vpno = -1;
+				frm_tab[i].fr_refcnt = 0;
+				frm_tab[i].fr_type = -1;
+				frm_tab[i].fr_dirty = 0;
+				frm_tab[i].fr_age = 0;
+				pte->pt_pres = 0; // setting the page table entry bit to 0
+				//write_cr3(pdbr); // resetting the TLB cache by resetting the page directory
+
+
 				table_index = pde->pd_base - FRAME0;
 				//kprintf("The table frame index of the evicted page is %d\n", table_index);
 				if (frm_tab[table_index].fr_type == FR_TBL) {
@@ -237,18 +252,7 @@ SYSCALL free_frm(int i)
 						}
 					}
 				}
-				char* wr_strt_addr = (char*)((i + FRAME0) * NBPG);
-                //kprintf("writing out frame_index %d, in the store %d and page %d\n",i,store,pageth);
-			    write_bs(wr_strt_addr, store, pageth);
-				frm_tab[i].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
-				frm_tab[i].fr_pid = BADPID;
-				frm_tab[i].fr_vpno = -1;
-				frm_tab[i].fr_refcnt = 0;
-				frm_tab[i].fr_type = -1;
-				frm_tab[i].fr_dirty = 0;
-				frm_tab[i].fr_age = 0;
-				pte->pt_pres = 0; // setting the page table entry bit to 0
-				write_cr3(pdbr); // resetting the TLB cache by resetting the page directory
+				
 			}
 		}
 	}

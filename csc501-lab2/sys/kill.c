@@ -31,13 +31,13 @@ SYSCALL kill(int pid)
 			if (frm_tab[frame_index].fr_type == FR_PAGE) {
 				//kprintf("clearing frame Index: %d\n", frame_index);
 				remove_from_list(frame_index);
-				frm_tab[frame_index].fr_status = FRM_UNMAPPED;
-				//free_frm(frame_index);
+				//frm_tab[frame_index].fr_status = FRM_UNMAPPED;
+				free_frm(frame_index);
 			}
 		}
 	}
 
-	kprintf("The pid of the process is :%d\n", pid);
+	//kprintf("The pid of the process is :%d\n", pid);
 	int store;
 	for (store = 0; store < 8; store++) {
 		if (bsm_tab[store].bs_status == BSM_MAPPED && bsm_tab[store].bs_pid == pid) {

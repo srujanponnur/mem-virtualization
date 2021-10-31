@@ -147,7 +147,7 @@ int main()
 
 	pid2 = create(proc1_test5, 2000, 20, "proc1_test5", 0, NULL);
 	resume(pid2);
-	sleep(10);
+	sleep(20);
 
 	kprintf("\n3: Frame test\n");
 	pid1 = create(proc1_test3, 2000, 20, "proc1_test3", 0, NULL);
