@@ -128,13 +128,13 @@ int main()
 	int pid2;
 
 	kprintf("\n1: shared memory\n");
-	srpolicy(AGING);
+	//srpolicy(AGING);
 	pid1 = create(proc1_test1, 2000, 20, "proc1_test1", 0, NULL);
 	resume(pid1);
 	sleep(10);
 
 	
-	/*kprintf("\n2: vgetmem/vfreemem\n");
+	kprintf("\n2: vgetmem/vfreemem\n");
 	pid1 = vcreate(proc1_test2, 2000, 100, 20, "proc1_test2", 0, NULL);
 	kprintf("pid %d has private heap\n", pid1);
 	resume(pid1);
@@ -143,9 +143,9 @@ int main()
 	kprintf("\n3: Frame test\n");
 	pid1 = create(proc1_test3, 2000, 20, "proc1_test3", 0, NULL);
 	resume(pid1);
-	sleep(3);*/
+	sleep(3);
 
-	/*kprintf("\nCreating a backing store\n");
+	kprintf("\nCreating a backing store\n");
 	pid1 = create(proc1_test4, 2000, 20, "proc1_test4", 0, NULL);
 	resume(pid1);
 	sleep(10);
@@ -153,7 +153,7 @@ int main()
 	kprintf("\nUsage of Same Backing Store\n");
 	pid2 = create(proc1_test5, 2000, 20, "proc1_test5", 0, NULL);
 	resume(pid2);
-	sleep(10);*/
+	sleep(10);
 
     shutdown();
 }

@@ -36,7 +36,7 @@ SYSCALL get_frm(int* avail)
 	STATWORD ps;
 	disable(ps);
 	int frameIndex, evt_frame;
-	for (frameIndex = 0; frameIndex < 11; frameIndex++) {
+	for (frameIndex = 0; frameIndex < NFRAMES; frameIndex++) {
 	        if (frm_tab[frameIndex].fr_status == FRM_UNMAPPED) {
 			*avail = frameIndex;
 			restore(ps);
@@ -46,7 +46,8 @@ SYSCALL get_frm(int* avail)
 	// currently no frame is available have to pick a frame
 	evt_frame = pick_frame(); // have to free this frame before returning
 	if (enable_debugging) {
-		kprintf("Frame Evicted is: %d \n", evt_frame);
+		int abs_frame = NFRAMES + evt_frame;
+		kprintf("Frame %d is replaced\n", abs_frame);
 	}
 	if (evt_frame == -1) {
 		kprintf("Unable to find the free frame");
