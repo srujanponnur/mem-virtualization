@@ -51,14 +51,12 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 		proctab[pid].store = store;
 		proctab[pid].vhpno = 4096;                  
 		proctab[pid].vhpnpages = hsize;
-		
+		proctab[pid].vmemlist->mnext = 4096 * NBPG;
 
-		struct mblock*  mptr = (struct mblock* )((store * BACKING_STORE_UNIT_SIZE) + BACKING_STORE_BASE); // storing the next available free chunk, starting from its backing store index
+		struct mblock*  mptr = (store * BACKING_STORE_UNIT_SIZE + BACKING_STORE_BASE); // storing the next available free chunk, starting from its backing store index
 		mptr->mnext = 0;
 		mptr->mlen = hsize * NBPG;
-
-		proctab[pid].vmemlist->mnext = 4096 * NBPG; // the starting address of the virtual memory
-
+		
 		restore(ps);
 		return pid;
 	};
