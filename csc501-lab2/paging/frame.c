@@ -67,7 +67,7 @@ unsigned int init_pd(int pid) {
 	int free_frame_no;
 	unsigned int pd_base;
 	get_frm(&free_frame_no); // Getting next free frame for pid's Page Directory 
-       pd_base = ((FRAME0 + free_frame_no) * NBPG);
+    pd_base = ((FRAME0 + free_frame_no) * NBPG);
 	frm_tab[free_frame_no].fr_type = FR_DIR;
 	frm_tab[free_frame_no].fr_pid = pid;
 	frm_tab[free_frame_no].fr_status = FRM_MAPPED;
@@ -203,7 +203,14 @@ SYSCALL free_frm(int i)
             // kprintf("The address being looked up is: %d\n ", address);
 			ret_val = bsm_lookup(pid, address, &store, &pageth);
 			if (ret_val == SYSERR) {
-				kprintf("Faulted Address: %d\n",address);
+				kprintf("Faulted Address: %d, just clearing the frame\n",address);
+				frm_tab[i].fr_status = FRM_UNMAPPED; //removing the entry of i from frm_tab
+				frm_tab[i].fr_pid = BADPID;
+				frm_tab[i].fr_vpno = -1;
+				frm_tab[i].fr_refcnt = 0;
+				frm_tab[i].fr_type = -1;
+				frm_tab[i].fr_dirty = 0;
+				frm_tab[i].fr_age = 0;
 				return SYSERR;
 			}
 			else {
