@@ -28,7 +28,7 @@ SYSCALL kill(int pid)
 
 	for (frame_index = 5; frame_index < NFRAMES; frame_index++) {
 		if (frm_tab[frame_index].fr_status == FRM_MAPPED) {
-			if (frm_tab[frame_index].fr_type == FR_PAGE) // || frm_tab[frame_index].fr_type == FR_TBL) {
+			if (frm_tab[frame_index].fr_type == FR_PAGE) { // || frm_tab[frame_index].fr_type == FR_TBL) {
 				//kprintf("clearing frame Index: %d\n", frame_index);
 				remove_from_list(frame_index);
 				//frm_tab[frame_index].fr_status = FRM_UNMAPPED;
