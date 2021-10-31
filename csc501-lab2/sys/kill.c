@@ -25,6 +25,32 @@ SYSCALL kill(int pid)
 		restore(ps);
 		return(SYSERR);
 	}
+
+	for (frame_index = 0; frame_index < NFRAMES; frame_index++) {
+		if (frm_tab[frame_index].fr_status == FRM_MAPPED && frm_tab[frame_index].fr_pid == pid) {
+			if (frm_tab[frame_index].fr_type == FR_PAGE) {
+				kprintf("clearing frame Index: %d\n", frame_index);
+				remove_from_list(frame_index);
+				free_frm(frame_index);
+			}
+		}
+	}
+
+	int store = proctab[pid].store;
+	release_bs(store); //clearing the store ID
+
+
+	pdbr = proctab[pid].pdbr;
+	frame_index = (pdbr / NBPG) - FRAME0;
+	kprintf("Clearing the page directory of the pid: %d at frame index: %d", pid, frame_index);
+	frm_tab[frame_index].fr_status = FRM_UNMAPPED;
+	frm_tab[frame_index].fr_pid = BADPID;
+	frm_tab[frame_index].fr_vpno = -1;
+	frm_tab[frame_index].fr_refcnt = 0;
+	frm_tab[frame_index].fr_type = -1;
+	frm_tab[frame_index].fr_dirty = 0;
+	frm_tab[frame_index].fr_age = 0;
+
 	if (--numproc == 0)
 		xdone();
 
@@ -57,32 +83,6 @@ SYSCALL kill(int pid)
 						/* fall through	*/
 	default:	pptr->pstate = PRFREE;
 	}
-
-
-	for (frame_index = 0; frame_index < NFRAMES; frame_index++) {
-		if (frm_tab[frame_index].fr_status == FRM_MAPPED && frm_tab[frame_index].fr_pid == pid) {
-			if (frm_tab[frame_index].fr_type == FR_PAGE) {
-				kprintf("clearing frame Index: %d\n", frame_index);
-				remove_from_list(frame_index);
-				free_frm(frame_index);
-			}
-		}
-	}
-
-	int store = proctab[pid].store;
-	release_bs(store); //clearing the store ID
-
-
-	pdbr = proctab[pid].pdbr;
-	frame_index = (pdbr / NBPG) - FRAME0;
-	kprintf("Clearing the page directory of the pid: %d at frame index: %d", pid, frame_index);
-	frm_tab[frame_index].fr_status = FRM_UNMAPPED;
-	frm_tab[frame_index].fr_pid = BADPID;
-	frm_tab[frame_index].fr_vpno = -1;
-	frm_tab[frame_index].fr_refcnt = 0;
-	frm_tab[frame_index].fr_type = -1;
-	frm_tab[frame_index].fr_dirty = 0;
-	frm_tab[frame_index].fr_age = 0;
 
 	restore(ps);
 	return(OK);
