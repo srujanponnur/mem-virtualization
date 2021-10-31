@@ -52,7 +52,7 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 		proctab[pid].vhpno = 4096;                  
 		proctab[pid].vhpnpages = hsize;
 		proctab[pid].vmemlist = (struct mblock*)getmem(sizeof(struct mblock));
-		proctab[pid].vmemlist.mnext = VHSNO * NBPG;
+		proctab[pid].vmemlist.mnext = 4096 * NBPG;
 
 		/* write mlen and mnext into corresponding backing store to avoid page fault interrupt */
 		struct mblock*  mptr = BACKING_STORE_BASE + store * BACKING_STORE_UNIT_SIZE;
