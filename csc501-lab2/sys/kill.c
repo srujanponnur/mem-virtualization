@@ -26,13 +26,13 @@ SYSCALL kill(int pid)
 		return(SYSERR);
 	}
 
-	for (frame_index = 0; frame_index < NFRAMES; frame_index++) {
-		if (frm_tab[frame_index].fr_status == FRM_MAPPED && frm_tab[frame_index].fr_pid == pid) {
-			if (frm_tab[frame_index].fr_type == FR_PAGE) {
+	for (frame_index = 5; frame_index < NFRAMES; frame_index++) {
+		if (frm_tab[frame_index].fr_status == FRM_MAPPED) {
+			if (frm_tab[frame_index].fr_type == FR_PAGE || frm_tab[frame_index].fr_type == FR_PAGE) {
 				//kprintf("clearing frame Index: %d\n", frame_index);
 				remove_from_list(frame_index);
-				//frm_tab[frame_index].fr_status = FRM_UNMAPPED;
-				free_frm(frame_index);
+				frm_tab[frame_index].fr_status = FRM_UNMAPPED;
+				//free_frm(frame_index);
 			}
 		}
 	}
