@@ -53,7 +53,7 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 		proctab[pid].vhpnpages = hsize;
 		
 
-		struct mblock*  mptr = (mblock *)(store * BACKING_STORE_UNIT_SIZE + BACKING_STORE_BASE); // storing the next available free chunk, starting from its backing store index
+		struct mblock*  mptr = (struct mblock* )((store * BACKING_STORE_UNIT_SIZE) + BACKING_STORE_BASE); // storing the next available free chunk, starting from its backing store index
 		mptr->mnext = 0;
 		mptr->mlen = hsize * NBPG;
 

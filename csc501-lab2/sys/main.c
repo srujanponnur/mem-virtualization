@@ -30,7 +30,7 @@ void proc1_test1(char* msg, int lck) {
         //kprintf("\n\nThe address being accessed is %d\n",(addr + i * NBPG));
 		*(addr + i * NBPG) = 'A' + i;
 	}
-        display_list();
+        //display_list();
         sleep(6);
 
 	for (i = 0; i < 26; i++) {
@@ -145,12 +145,11 @@ int main()
 	resume(pid1);
 	sleep(3);
 
-	kprintf("\nCreating a backing store\n");
+	kprintf("\n4.Creating a backing store and usage of Same Backing Store\n");
 	pid1 = create(proc1_test4, 2000, 20, "proc1_test4", 0, NULL);
 	resume(pid1);
 	sleep(10);
 
-	kprintf("\nUsage of Same Backing Store\n");
 	pid2 = create(proc1_test5, 2000, 20, "proc1_test5", 0, NULL);
 	resume(pid2);
 	sleep(10);
