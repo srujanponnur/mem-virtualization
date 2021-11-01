@@ -35,19 +35,7 @@ SYSCALL kill(int pid)
 				//kprintf("clearing frame Index: %d\n", frame_index);
 				if(frm_tab[frame_index].fr_type == FR_PAGE)
 					remove_from_list(frame_index);
-				/*address = frm_tab[frame_index].fr_vpno * NBPG;
-				virtual_address = (virt_addr_t*)&address;
-				pde = (pd_t*)(pdbr + (sizeof(pd_t) * virtual_address->pd_offset));
-				pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));*/
 				frm_tab[frame_index].fr_status = FRM_UNMAPPED;
-				/*frm_tab[frame_index].fr_age = 0;
-				pte->pt_pres = 0;
-				table_index = pde->pd_base - FRAME0;
-				frm_tab[table_index].fr_refcnt--;
-				if (frm_tab[table_index].fr_refcnt == 0) {
-					frm_tab[table_index].fr_status = FRM_UNMAPPED;
-					pde->pd_pres = 0;
-				}*/
 			}
 		}
 	}
@@ -68,6 +56,13 @@ SYSCALL kill(int pid)
 	//int store = proctab[pid].store;
 	//release_bs(store); //clearing the store ID
 
+	for (frame_index = 6; frame_index < NFRAMES; frame_index++) {
+		if (frm_tab[frame_index].fr_status == FRM_MAPPED) {
+			if (frm_tab[frame_index].fr_pid == pid && (frm_tab[frame_index].fr_type == FR_TBL)) {
+				frm_tab[frame_index].fr_status = FRM_UNMAPPED;
+			}
+		}
+	}
 
 	pdbr = proctab[pid].pdbr;
 	frame_index = (pdbr / NBPG) - FRAME0;
