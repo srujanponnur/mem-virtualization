@@ -302,7 +302,7 @@ int  get_frame_using_aging() {
 	pd_t* pde;
 	pt_t* pte;
 	list_node* temp = head->next;
-	kprintf("In Aging\n");
+	//kprintf("In Aging\n");
 	while (temp != head) {
 
 		frame_index = temp->frame_index;
@@ -313,7 +313,7 @@ int  get_frame_using_aging() {
 		pde = (pd_t*)(pdbr + (sizeof(pd_t) * virtual_address->pd_offset));
 		pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
 
-		kprintf("The current Age of frame Index: %d is %d\n", frame_index, frm_tab[frame_index].fr_age);
+		//kprintf("The current Age of frame Index: %d is %d\n", frame_index, frm_tab[frame_index].fr_age);
 		frm_tab[frame_index].fr_age  = frm_tab[frame_index].fr_age >> 1; //decreasing all pages fr_age's by half
 
 		if (pte->pt_acc) {
@@ -330,6 +330,6 @@ int  get_frame_using_aging() {
 		temp = temp->next;
 	}
 	remove_from_list(picked_frame); //remove from the list.
-	kprintf("The minimum fr_age within the frame tab is %d with index: %d\n ", current_min, picked_frame);
+	//kprintf("The minimum fr_age within the frame tab is %d with index: %d\n ", current_min, picked_frame);
 	return picked_frame;
 }
