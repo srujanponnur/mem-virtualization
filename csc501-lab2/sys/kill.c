@@ -18,8 +18,11 @@ SYSCALL kill(int pid)
 {
 	STATWORD ps;    
 	struct	pentry	*pptr;		/* points to proc. table for pid*/
-	int	dev, frame_index;
+	int	dev, frame_index, table_index;
 	unsigned int pdbr;
+	virt_addr_t* virtual_address;
+	pd_t* pde;
+	pt_t* pte;
 	disable(ps);
 	if (isbadpid(pid) || (pptr= &proctab[pid])->pstate==PRFREE) {
 		restore(ps);
@@ -28,11 +31,23 @@ SYSCALL kill(int pid)
 
 	for (frame_index = 5; frame_index < NFRAMES; frame_index++) {
 		if (frm_tab[frame_index].fr_status == FRM_MAPPED) {
-			if (frm_tab[frame_index].fr_type == FR_PAGE) { // || frm_tab[frame_index].fr_type == FR_TBL) {
+			if (frm_tab[frame_index].fr_pid == pid && (frm_tab[frame_index].fr_type == FR_PAGE)) { // || frm_tab[frame_index].fr_type == FR_TBL)) {
 				//kprintf("clearing frame Index: %d\n", frame_index);
+				//if(frm_tab[frame_index].fr_type == FR_PAGE)
 				remove_from_list(frame_index);
-				//frm_tab[frame_index].fr_status = FRM_UNMAPPED;
-				free_frm(frame_index);
+				address = frm_tab[frame_index].fr_vpno * NBPG;
+				virtual_address = (virt_addr_t*)&address;
+				pde = (pd_t*)(pdbr + (sizeof(pd_t) * virtual_address->pd_offset));
+				pte = (pt_t*)((pde->pd_base * NBPG) + (sizeof(pt_t) * virtual_address->pt_offset));
+				frm_tab[frame_index].fr_status = FRM_UNMAPPED;
+				frm_tab[frame_index].fr_age = 0;
+				pte->pt_pres = 0;
+				table_index = pde->pd_base - FRAME0;
+				frm_tab[table_index].fr_refcnt--;
+				if (frm_tab[table_index].fr_refcnt == 0) {
+					frm_tab[table_index].fr_status = FRM_UNMAPPED;
+					pde->pd_pres = 0;
+				}
 			}
 		}
 	}
