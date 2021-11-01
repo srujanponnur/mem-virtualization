@@ -107,7 +107,7 @@ void proc1_test5(char* msg, int lck) {
 	xmmap(6000, 4, 100);
 	x = 6000 * 4096;
 	temp_b = *x;   /* Surprise: Now, temp_b will get the value 'Y' written by the process A to this backing store '4' */
-	kprintf("The value read from process A's store is %c", temp_b);
+	kprintf("\nThe value read from process A's store is %c", temp_b);
 	return;
 }
 
