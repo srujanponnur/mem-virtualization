@@ -19,7 +19,7 @@ SYSCALL kill(int pid)
 	STATWORD ps;    
 	struct	pentry	*pptr;		/* points to proc. table for pid*/
 	int	dev, frame_index, table_index;
-	unsigned int pdbr;
+	unsigned int pdbr, address;
 	virt_addr_t* virtual_address;
 	pd_t* pde;
 	pt_t* pte;
