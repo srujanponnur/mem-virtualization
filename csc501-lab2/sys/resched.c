@@ -21,7 +21,8 @@ int	resched()
 	STATWORD		PS;
 	register struct	pentry	*optr;	/* pointer to old process entry */
 	register struct	pentry	*nptr;	/* pointer to new process entry */
-	register int i;
+	register int i, virtual_address;
+	int frameIndex, store, pageth;
 
 	disable(PS);
 	/* no switch needed if current process priority higher than next*/
@@ -83,6 +84,17 @@ int	resched()
 #ifdef	DEBUG
 	PrintSaved(nptr);
 #endif
+	while (frameIndex < NFRAMES) {
+		if (frm_tab[frameIndex].fr_pid == currpid) {
+			if (frm_tab[frameIndex].fr_dirty && frm_tab[frameIndex].fr_type == FR_PAGE) {
+				virtual_address = frm_tab[frameIndex].fr_vpno * NBPG;
+				bsm_lookup(currpid, virtual_address, &store, &pageth);
+				char* wr_strt_addr = (char*)((frameIndex + FRAME0) * NBPG);
+				write_bs(wr_strt_addr, store, pageth);
+			}
+		}
+		frameIndex++;
+	}
 	write_cr3(nptr->pdbr);
 	ctxsw(&optr->pesp, optr->pirmask, &nptr->pesp, nptr->pirmask);
 
