@@ -35,7 +35,8 @@ SYSCALL kill(int pid)
 				//kprintf("clearing frame Index: %d\n", frame_index);
 				if(frm_tab[frame_index].fr_type == FR_PAGE)
 					remove_from_list(frame_index);
-				frm_tab[frame_index].fr_status = FRM_UNMAPPED;
+				//frm_tab[frame_index].fr_status = FRM_UNMAPPED;
+				free_frm(frame_index);
 			}
 		}
 	}
